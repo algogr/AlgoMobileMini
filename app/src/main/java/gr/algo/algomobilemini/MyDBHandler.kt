@@ -473,7 +473,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-                  cursor.moveToPosition(j)
+        cursor.moveToPosition(0)
             val code=cursor.getString(1)
             val description=cursor.getString(2)
             val erpid=cursor.getString(3).toInt()

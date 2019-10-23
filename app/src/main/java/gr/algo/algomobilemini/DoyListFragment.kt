@@ -207,7 +207,7 @@ class DoyListFragment : Fragment() {
                     val fragmentTransaction = activity.getSupportFragmentManager().beginTransaction()
                     val args=Bundle()
                     args.putString("description",doyList!![position].description)
-                    args.putInt("iteId",doyList!![position].erpId)
+                    args.putInt("doyerpid",doyList!![position].erpId)
 
                     cusstomerFragment.arguments=args
 

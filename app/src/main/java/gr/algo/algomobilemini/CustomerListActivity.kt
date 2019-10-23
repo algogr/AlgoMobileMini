@@ -17,6 +17,8 @@ import kotlin.collections.ArrayList
 
 class CustomerListActivity : AppCompatActivity() {
 
+    private var routeId:Int=0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_list)
@@ -29,7 +31,7 @@ class CustomerListActivity : AppCompatActivity() {
 
         val extras=intent.extras?:return
 
-        val routeId=extras.getInt("routeid")
+        routeId=extras.getInt("routeid")
 
         val customerList:MutableList<Customer>? = handler.getCustomersByRoute(routeId)
         val customerlistAdapter=CustomerListViewAdapter(this@CustomerListActivity,customerList)
@@ -126,6 +128,7 @@ class CustomerListActivity : AppCompatActivity() {
             holder.vatStatusId=CustomerList!![position].vatstatusid
 
 
+
             return view
         }
 
@@ -211,6 +214,7 @@ class CustomerListActivity : AppCompatActivity() {
         var name:String
         var vatStatusId:Int
 
+
         init{
 
             this.textView=view?.findViewById<TextView>(R.id.textView3) as TextView
@@ -222,6 +226,7 @@ class CustomerListActivity : AppCompatActivity() {
             this.name=""
             this.city=""
             this.vatStatusId=-1
+
 
             view.setOnClickListener { v: View  ->
                 /*
@@ -244,6 +249,7 @@ class CustomerListActivity : AppCompatActivity() {
                 i.putExtra("address",address)
                 i.putExtra("city",city)
                 i.putExtra("vatstatusid",vatStatusId)
+
 
 
 
