@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             tools:context=".Tab1Fragment" android:id="@+id/frameLayout2">
+    <ListView
+            android:layout_width="0dp"
+            android:layout_height="0dp" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" android:layout_marginTop="32dp" app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/listView" android:layout_marginBottom="200dp"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/acceptButton2"
+            android:background="@drawable/checkmark"
+            app:layout_constraintTop_toBottomOf="@id/listView"
+            app:layout_constraintLeft_toLeftOf="parent"
+
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="80dp"/>
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/cancelButton2"
+            android:background="@drawable/cancel"
+            app:layout_constraintTop_toBottomOf="@id/listView"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="80dp"/>
+    <TextView
+            android:text="Καθαρή Αξία"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            app:layout_constraintTop_toBottomOf="@id/acceptButton2"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/textView4"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+
+
+    />
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sumNValueTextView"
+            app:layout_constraintTop_toBottomOf="@id/acceptButton2"
+            app:layout_constraintLeft_toRightOf="@id/textView2"
+            app:layout_constraintBottom_toTopOf="@id/textView4"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/textView2"
+    />
+    <TextView
+            android:text="ΦΠΑ:"
+            android:id="@+id/textFPA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/cancelButton2"
+            app:layout_constraintLeft_toRightOf="@id/sumNValueTextView"
+            app:layout_constraintBottom_toTopOf="@id/textView4"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/textView2"
+    />
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sumVATTextView"
+            app:layout_constraintTop_toBottomOf="@id/cancelButton2"
+            app:layout_constraintLeft_toRightOf="@id/textFPA"
+            app:layout_constraintBottom_toTopOf="@id/textView4"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/textView2"
+    />
+    <TextView
+            android:text="Πληρωτέο:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView4" android:layout_marginBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/textView2"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="120dp"
+            android:textStyle="bold" android:layout_marginEnd="32dp"
+            app:layout_constraintEnd_toStartOf="@+id/sumTotalAmountTextView"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sumTotalAmountTextView"
+            app:layout_constraintTop_toBottomOf="@id/sumVATTextView"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="120dp"
+            app:layout_constraintBaseline_toBaselineOf="@id/textView4"
+            android:textStyle="bold"/>
+
+</android.support.constraint.ConstraintLayout>

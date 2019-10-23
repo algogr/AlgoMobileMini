@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/codeTextView" app:layout_constraintEnd_toStartOf="@+id/descrTextView"
+            android:layout_marginEnd="8dp" android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            app:layout_constraintHorizontal_bias="0.5"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/descrTextView" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/codeTextView" app:layout_constraintHorizontal_bias="0.5"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/firstQtyTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/descrTextView" android:textAlignment="textEnd"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/priceTextView"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/priceTextView"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/descrTextView" android:textAlignment="textEnd"
+            app:layout_constraintStart_toEndOf="@+id/firstQtyTextView"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/discountTextView"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/discountTextView"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/descrTextView" android:textAlignment="textEnd"
+            app:layout_constraintStart_toEndOf="@+id/priceTextView"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/netValueTextView"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/netValueTextView"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/descrTextView"
+            android:textAlignment="textEnd"
+            app:layout_constraintStart_toEndOf="@+id/discountTextView" app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintEnd_toStartOf="@+id/vatTextView"/>
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/vatTextView"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/descrTextView"
+            android:textAlignment="textEnd"
+            app:layout_constraintStart_toEndOf="@+id/netValueTextView" app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintEnd_toEndOf="parent"/>
+</android.support.constraint.ConstraintLayout>

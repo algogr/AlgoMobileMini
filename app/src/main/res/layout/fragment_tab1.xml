@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:background="?android:windowBackground"
+                                             tools:context=".Tab1Fragment" android:id="@+id/frameLayout1">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:id="@+id/linearLayout">
+        <SearchView
+                android:layout_width="match_parent"
+                android:layout_height="74dp" android:id="@+id/itemSearchView"/>
+        <ListView
+                android:layout_width="match_parent"
+                android:layout_height="648dp" android:id="@+id/fullProductListView"/>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
