@@ -42,6 +42,13 @@ class RouteActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,MainActivity::class.java)
+
+        startActivity(i)
+    }
+
 
 
     inner class RouteListViewAdapter:BaseAdapter{
@@ -85,7 +92,7 @@ class RouteActivity : AppCompatActivity() {
             holder.position=position
             holder.textView.text=routeList!![position].description
             holder.routeId=routeList!![position].erpId
-
+            Log.d("JIM-ROUTEID0","v")
             return view
         }
 
@@ -110,31 +117,22 @@ class RouteActivity : AppCompatActivity() {
         var position:Int
         var routeId=-1
 
-        init{
-            this.textView=view?.findViewById<TextView>(R.id.textView) as TextView
-            this.position=-1
+        init {
+            this.textView = view?.findViewById<TextView>(R.id.textView) as TextView
+            this.position = -1
 
-            view.setOnClickListener { v: View  ->
+            view.setOnClickListener { v: View ->
 
-                /*
+                Log.d("JIM-ROUTEID0","T")
 
-
-                when(position){
-                    0->{
-
-                        val i = Intent(v.context,RouteActivity::class.java)
-                        v.context.startActivity(i)
-
-                    }
-                }
-                */
-
-
-                val i = Intent(v.context,CustomerListActivity::class.java)
-                i.putExtra("routeid",routeId)
+                val i = Intent(v.context, CustomerListActivity::class.java)
+                Log.d("JIM-ROUTEID0", routeId.toString())
+                i.putExtra("routeid", routeId)
                 v.context.startActivity(i)
             }
+
         }
+
     }
 
 

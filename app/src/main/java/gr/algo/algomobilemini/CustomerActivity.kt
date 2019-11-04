@@ -2,6 +2,7 @@
 
 package gr.algo.algomobilemini
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 
@@ -17,5 +18,14 @@ class CustomerActivity : FragmentActivity() {
         //setSupportActionBar(toolbar)
 
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,RouteActivity::class.java)
+
+        startActivity(i)
+    }
+
+
 
 }

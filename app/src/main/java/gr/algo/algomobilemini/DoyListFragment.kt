@@ -12,6 +12,7 @@ import android.widget.ListView
 import android.widget.SearchView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_customer.*
+import kotlinx.android.synthetic.main.fragment_customer.*
 import java.util.*
 
 
@@ -28,6 +29,7 @@ class DoyListFragment : Fragment() {
 
     private lateinit  var listener:OnItemSelectedListener
     private  var cusstomerFragment=CustomerActivityFragment()
+
 
 
 
@@ -206,8 +208,25 @@ class DoyListFragment : Fragment() {
                     test.CoordinatorLayout1.removeAllViews()
                     val fragmentTransaction = activity.getSupportFragmentManager().beginTransaction()
                     val args=Bundle()
-                    args.putString("description",doyList!![position].description)
+                    args.putString("doydescr",doyList!![position].description)
                     args.putInt("doyerpid",doyList!![position].erpId)
+
+
+                    args.putString("cusname",arguments.getString("cusname"))
+                    args.putString("address",arguments.getString("address"))
+                    args.putString("district",arguments.getString("district"))
+                    args.putString("title",arguments.getString("title"))
+                    args.putString("afm",arguments.getString("afm"))
+                    args.putString("occupation",arguments.getString("occupation"))
+                    args.putString("tel1",arguments.getString("tel1"))
+                    args.putString("tel2",arguments.getString("tel2"))
+                    args.putString("fax",arguments.getString("fax"))
+                    args.putString("email",arguments.getString("email"))
+                    args.putInt("vatstatusid",arguments.getInt("vatstatusid"))
+                    args.putString("city",arguments.getString("city"))
+                    args.putString("comments",arguments.getString("comments"))
+                    args.putInt("routeid",arguments.getInt("routeid"))
+                    args.putInt("mode",1)
 
                     cusstomerFragment.arguments=args
 

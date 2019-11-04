@@ -42,4 +42,12 @@ class Settings : AppCompatActivity() {
         }
     }
 
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,MainActivity::class.java)
+
+        startActivity(i)
+    }
+
 }

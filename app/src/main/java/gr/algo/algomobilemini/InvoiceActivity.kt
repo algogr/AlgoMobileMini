@@ -156,6 +156,15 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
     }
 
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,InvoiceActivity::class.java)
+
+        startActivity(i)
+    }
+
+
+
 
     private fun configureTabLayout(){
 

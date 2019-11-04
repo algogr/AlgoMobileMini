@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,15 +66,26 @@ class CustomerListActivity : AppCompatActivity() {
 
             val i= Intent(view.context,CustomerActivity::class.java)
             i.putExtra("routeid",routeId)
+
             startActivity(i)
 
         }
+
+
+
+
+
+
+
     }
 
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,RouteActivity::class.java)
 
-
-
+        startActivity(i)
+    }
 
 
     inner class CustomerListViewAdapter: BaseAdapter {
@@ -120,7 +132,7 @@ class CustomerListActivity : AppCompatActivity() {
 
             holder.position=position
             holder.textView.text=CustomerList!![position].name
-            holder.cusId=CustomerList!![position].erpid
+            holder.cusId=CustomerList!![position].id
             holder.name=CustomerList!![position].name
             holder.title=CustomerList!![position].title
             holder.address=CustomerList!![position].address
@@ -181,7 +193,7 @@ class CustomerListActivity : AppCompatActivity() {
                     if our Search Keyword in Temp ArrayList than we add to our Main ArrayList
                     */
 
-                    if (tempNameVersionList.get(i).name!!.toLowerCase(Locale.getDefault()).contains(text)) {
+                    if (tempNameVersionList.get(i).name.toLowerCase(Locale.getDefault()).contains(text)) {
 
 
                         CustomerList?.add(tempNameVersionList.get(i))
@@ -208,9 +220,9 @@ class CustomerListActivity : AppCompatActivity() {
         var textView: TextView
         var position:Int
         var cusId:Int
-        var title:String
-        var address:String
-        var city:String
+        var title:String?
+        var address:String?
+        var city:String?
         var name:String
         var vatStatusId:Int
 
@@ -249,6 +261,7 @@ class CustomerListActivity : AppCompatActivity() {
                 i.putExtra("address",address)
                 i.putExtra("city",city)
                 i.putExtra("vatstatusid",vatStatusId)
+
 
 
 

@@ -2,13 +2,15 @@ package gr.algo.algomobilemini
 
 import android.os.AsyncTask
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import okio.Okio
 import java.io.File
+import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -29,82 +31,104 @@ class DownloadFilesTask(val context:UploadDB): AsyncTask<Int, Int, String>() {
         val address=handler.getSettings(1)
         val port=handler.getSettings(2)
         val serverUrl="http://"+address+":"+port+"/files/algo.sqlite"
-        //val serverUrl="http://192.168.2.29:8080/files/algo.sqlite"
+
 
         val client = OkHttpClient()
         val request = Request.Builder().url(serverUrl).build()
 
-        val response = client.newCall(request).execute()
-        val contentType = response.header("content-type", null)
-        var ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentType)
-        ext = if (ext == null) {
-            ".sqlite"
-        } else {
-            ".$ext"
+        client.newCall(request).enqueue(object: Callback {override fun onFailure(call: Call, e: IOException) {
+
+            result="Υπάρχει πρόβλημα στη σύνδεση με τον server"
+            onPostExecute("Υπάρχει πρόβλημα στη σύνδεση με τον server")
         }
 
-        // use provided name or generate a temp file
-        var file: File? = null
-        val name="algo"
-        file = if (name != null) {
-            val filename = String.format("%s%s", name, ext)
-            File(dir.absolutePath, filename)
-        } else {
+            override fun onResponse(call: Call, response: Response) {
 
-            val timestamp=
-            {
-                var answer:String
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val current = LocalDateTime.now()
-                    //val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm:ss")
-                    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd-kkmmss")
-                    answer =  current.format(formatter)
-
-
+                val contentType = response.header("content-type", null)
+                var ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentType)
+                ext = if (ext == null) {
+                    ".sqlite"
                 } else {
-                    var date = Date();
-                    //val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
-                    val formatter = SimpleDateFormat("yyyyMMdd-kkmmss")
-                    answer = formatter.format(date)
-
-
+                    ".$ext"
                 }
-                answer
+
+                // use provided name or generate a temp file
+                var file: File? = null
+                val name="algo"
+                file = if (name != null) {
+                    val filename = String.format("%s%s", name, ext)
+                    File(dir.absolutePath, filename)
+                } else {
+
+                    val timestamp=
+                            {
+                                var answer:String
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    val current = LocalDateTime.now()
+                                    //val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm:ss")
+                                    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd-kkmmss")
+                                    answer =  current.format(formatter)
+
+
+                                } else {
+                                    var date = Date();
+                                    //val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+                                    val formatter = SimpleDateFormat("yyyyMMdd-kkmmss")
+                                    answer = formatter.format(date)
+
+
+                                }
+                                answer
+                            }
+
+
+
+
+                    File.createTempFile(timestamp.toString(), ext, dir)
+                }
+
+                val result = response.body()
+                val sink = Okio.buffer(Okio.sink(file))
+                /*
+                sink.writeAll(body!!.source())
+                sink.close()
+                body.close()
+                 */
+
+                result?.source().use { input ->
+                    sink.use { output ->
+                        output.writeAll(input)
+                    }
+                }
+
+                onPostExecute("Η λήψη ήταν επιτυχής")
             }
 
 
 
+        })
 
-            File.createTempFile(timestamp.toString(), ext, dir)
-        }
 
-        val result = response.body()
-        val sink = Okio.buffer(Okio.sink(file))
-        /*
-        sink.writeAll(body!!.source())
-        sink.close()
-        body.close()
-         */
 
-        result?.source().use { input ->
-            sink.use { output ->
-                output.writeAll(input)
-            }
-        }
+
+
 
         return result.toString()
     }
+    val h: Handler = Handler(Looper.getMainLooper());
 
     protected fun onProgressUpdate(vararg progress: Int) {
     }
 
     override fun onPostExecute(result: String) {
 
-        val activity = activityReference.get()
-        if (activity == null || activity.isFinishing) return
-        //activity.progressBar.visibility = View.GONE
-        //activity.toastMsg=result.let{ it }
-        Toast.makeText(activity,"Η λήψη ολοκληρώθηκε", Toast.LENGTH_LONG).show()
+        if(result!=null) {
+            h.post(Runnable() {
+                run() {
+                    Toast.makeText(context, result , Toast.LENGTH_SHORT).show();
+                }
+            })
+        }
     }
 
 

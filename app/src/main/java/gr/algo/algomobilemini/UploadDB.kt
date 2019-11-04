@@ -1,6 +1,7 @@
 package gr.algo.algomobilemini
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 
@@ -62,6 +63,13 @@ class UploadDB : AppCompatActivity() {
             val networkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
             networkInfo?.isConnected ?: false
         } else false
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val i= Intent(this,MainActivity::class.java)
+
+        startActivity(i)
     }
 
 

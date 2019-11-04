@@ -82,7 +82,7 @@ class Tab2Fragment : Fragment() {
         view.sumTotalAmountTextView.text=totalAmount.toString()
 
         view.acceptButton2.setOnClickListener { v:View->
-            insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumNValueTextView.text.toString().toFloat(),
+            insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumVATTextView.text.toString().toFloat(),
                     view.sumTotalAmountTextView.text.toString().toFloat())
             findBT()
             openBT()

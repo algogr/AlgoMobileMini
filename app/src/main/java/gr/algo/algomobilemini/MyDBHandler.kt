@@ -13,7 +13,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 {
 
     override fun onCreate(db: SQLiteDatabase) {
-        //createTables(db)
+        createTables(db)
 
 
 
@@ -148,12 +148,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
                 "\t`active`\tINTEGER\n" +
                 ");"
 
-        val CREATE_TABLETINFO="CREATE TABLE `tabletinfo` (\n" +
-                "\t`salesmanid`\tINTEGER,\n" +
-                "\t`printercode`\tINTEGER\n" +
-                "\t`serveraddress`\tTEXT\n" +
-                "\t`serverport`\tTEXT\n" +
-                ")"
+        val CREATE_TABLETINFO:String="CREATE TABLE TABLETINFO (salesmanid INTEGER,printercode INTEGER,serveraddress TEXT,serverport INTEGER )"
+
+        val TABLETINFODATA="INSERT INTO tabletinfo(salesmanid,printercode,serveraddress,serverport) VALUES (1,0,'192.168.0.11',8080)"
 
         val CREATE_MATERIAL="CREATE TABLE [Material] (\n" +
                 "[code] TEXT  NOT NULL,\n" +
@@ -190,6 +187,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
 
 
+
         db.execSQL(CREATE_COMPANYDATA)
         db.execSQL(CREATE_ROUTE)
         db.execSQL(CREATE_VATSTATUS)
@@ -204,6 +202,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         db.execSQL(CREATE_SALESMAN)
         db.execSQL(CREATE_PRINTERS)
         db.execSQL(CREATE_TABLETINFO)
+        db.execSQL(TABLETINFODATA)
         db.execSQL(CREATE_MATERIAL)
         db.execSQL(CREATE_CUSTOMER)
 
@@ -248,7 +247,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomersByRoute(route:Int):MutableList<Customer>?
     {
         val query="SELECT * FROM customer WHERE routeid=$route order by name"
-
+        Log.d("JIM-ROUTEQUERT",query)
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
@@ -261,23 +260,23 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
 
             val name:String=cursor.getString(0)
-            val address:String=cursor.getString(1)
-            val district:String=cursor.getString(2)
-            val title:String=cursor.getString(3)
+            val address:String?=cursor.getString(1)
+            val district:String?=cursor.getString(2)
+            val title:String?=cursor.getString(3)
             val afm:String=cursor.getString(4)
-            val doyid:Int=Integer.parseInt(cursor.getString(5))
-            val erpid: Int=Integer.parseInt(cursor.getString(6))
-            val occupation:String=cursor.getString(7)
-            val tel1:String=cursor.getString(8)
-            val tel2:String=cursor.getString(9)
-            val fax:String=cursor.getString(10)
-            val email:String=cursor.getString(11)
+            val doyid:Int?=cursor.getInt(5)
+            val erpid: Int=cursor.getInt(6)
+            val occupation:String?=cursor.getString(7)
+            val tel1:String?=cursor.getString(8)
+            val tel2:String?=cursor.getString(9)
+            val fax:String?=cursor.getString(10)
+            val email:String?=cursor.getString(11)
             val vatstatusid:Int=Integer.parseInt(cursor.getString(12))
-            val city:String=cursor.getString(13)
-            val comments:String=cursor.getString(14)
+            val city:String?=cursor.getString(13)
+            val comments:String?=cursor.getString(14)
             val routeid:Int=Integer.parseInt(cursor.getString(15))
             val erpupd:Int=Integer.parseInt(cursor.getString(16))
-            val id:Int=Integer.parseInt(cursor.getString(17))
+            val id:Int =cursor.getInt(17)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
@@ -301,29 +300,29 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     {
 
         val query="SELECT * FROM Customer where id="+cusId
-
+        Log.d("JIM1-CUSQIE",query)
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
         cursor.moveToPosition(0)
             val name:String=cursor.getString(0)
-            val address:String=cursor.getString(1)
-            val district:String=cursor.getString(2)
-            val title:String=cursor.getString(3)
+            val address:String?=cursor.getString(1)
+            val district:String?=cursor.getString(2)
+            val title:String?=cursor.getString(3)
             val afm:String=cursor.getString(4)
-            val doyid:Int=Integer.parseInt(cursor.getString(5))
-            val erpid: Int=Integer.parseInt(cursor.getString(6))
-            val occupation:String=cursor.getString(7)
-            val tel1:String=cursor.getString(8)
-            val tel2:String=cursor.getString(9)
-            val fax:String=cursor.getString(10)
-            val email:String=cursor.getString(11)
-            val vatstatusid:Int=Integer.parseInt(cursor.getString(12))
-            val city:String=cursor.getString(13)
-            val comments:String=cursor.getString(14)
-            val routeid:Int=Integer.parseInt(cursor.getString(15))
-            val erpupd:Int=Integer.parseInt(cursor.getString(16))
-            val id:Int=Integer.parseInt(cursor.getString(17))
+            val doyid:Int?=cursor.getInt(5)
+            val erpid: Int=cursor.getInt(6)
+            val occupation:String?=cursor.getString(7)
+            val tel1:String?=cursor.getString(8)
+            val tel2:String?=cursor.getString(9)
+            val fax:String?=cursor.getString(10)
+            val email:String?=cursor.getString(11)
+            val vatstatusid:Int=cursor.getInt(12)
+            val city:String?=cursor.getString(13)
+            val comments:String?=cursor.getString(14)
+            val routeid:Int=cursor.getInt(15)
+            val erpupd:Int=cursor.getInt(16)
+            val id:Int=cursor.getInt(17)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
@@ -407,12 +406,12 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             cursor.moveToPosition(j)
             val code=cursor.getString(0)
             val description=cursor.getString(1)
-            val price=cursor.getString(2).toFloat()
-            val vatid=cursor.getString(3).toInt()
-            val maxdiscount=cursor.getString(4).toFloat()
+            val price=cursor.getFloat(2)
+            val vatid=cursor.getInt(3)
+            val maxdiscount=cursor.getFloat(4)
             val unit=cursor.getString(5)
-            val erpid=cursor.getString(6).toInt()
-            val id=cursor.getString(7).toInt()
+            val erpid=cursor.getInt(6)
+            val id=cursor.getInt(7)
 
             val item=Material(code,description, price, vatid, maxdiscount, unit, erpid, id)
 
@@ -468,23 +467,28 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getDoybyErpid( erpId:Int):Doy
     {
-        val query="SELECT * FROM Doy where erpid="+erpId
+        var doy:Doy?=null
+        if (erpId !=null)
+        {
+            val query = "SELECT * FROM Doy where erpid=" + erpId
 
-        val db=this.writableDatabase
-        val cursor=db.rawQuery(query,null)
+            val db = this.writableDatabase
+            val cursor = db.rawQuery(query, null)
 
-        cursor.moveToPosition(0)
-            val code=cursor.getString(1)
-            val description=cursor.getString(2)
-            val erpid=cursor.getString(3).toInt()
-
-
-            val doy=Doy(code,description, erpid)
+            if(cursor.moveToPosition(0)) {
+                val code = cursor.getString(1)
+                val description = cursor.getString(2)
+                val erpid = cursor.getString(3).toInt()
 
 
-        cursor.close()
-        db.close()
-        return doy
+                doy = Doy(code, description, erpid)
+
+
+                cursor.close()
+                db.close()
+            }
+        }
+        return doy?:Doy()
 
 
     }
@@ -498,11 +502,12 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         var answer:String?=""
         when (field){
             1->answer=cursor?.getString(0)
-            2->answer=cursor?.getString(1)
+            2->answer=cursor?.getInt(1).toString()
 
         }
         cursor?.close()
         db.close()
+        Log.d("JIM2",answer?:"")
         return answer?:""
     }
 
@@ -520,9 +525,15 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         var cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val lastno=cursor.getInt(0)
+        query="SELECT erpid FROM customer WHERE id="+findoc.cusId
+        cursor=db.rawQuery(query,null)
+        cursor.moveToPosition(0)
+        var cusErpId=cursor.getInt(0)
+        if (cusErpId==0) cusErpId=findoc.cusId
+
 
        query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash) VALUES " +
-                "(date('now'),"+findoc.dsrId.toString()+","+(lastno+1).toString()+","+findoc.cusId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
+                "(date('now'),"+findoc.dsrId.toString()+","+(lastno+1).toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
                 "',"+findoc.erpUpd.toString()+","+findoc.netValue.toString()+","+ findoc.vatAmount.toString()+
                 ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+")"
         Log.d("JIM",query)
@@ -544,7 +555,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             cursor = db.rawQuery(query, null)
             cursor.moveToPosition(0)
             val cusName = cursor.getString(0)
-            query = "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,ftrid,perid) VALUES (date('now'),1," + findoc.totAmount + ",'" + cusName + "'," + "1" + "," + ftrid.toString() + "," + findoc.cusId.toString() + ")"
+            query = "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,ftrid,perid) VALUES (date('now'),1," + findoc.totAmount + ",'" + cusName + "'," + "1" + "," + ftrid.toString() + "," + if (cusErpId>0 ) cusErpId.toString() else findoc.cusId.toString() + ")"
             db.execSQL(query)
         }
         cursor.close()
@@ -571,7 +582,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun insertCustomer(customer:Customer){
         val db=this.writableDatabase
-        var query="INSERT INTO Customer] (name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,routeid,erpupd) " +
+        var query="INSERT INTO customer (name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,routeid,erpupd) " +
                 "VALUES('"+customer.name+"','"+customer.address+"','"+customer.district+"','"+customer.title+"','"+customer.afm+"',"+customer.doyid+","+customer.erpid+",'"+
                 customer.occupation+"','"+customer.tel1+"','"+customer.tel2+"','"+customer.fax+"','"+customer.email+"',"+customer.vatstatusid+",'"+customer.city+"','"+customer.comments+
                 "',"+customer.routeid+",0)"
@@ -591,7 +602,6 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val percent=cursor.getFloat(status)
         cursor.close()
         db.close()
-        Log.d("JIMPERCENT",percent.toString())
         return percent
     }
 
