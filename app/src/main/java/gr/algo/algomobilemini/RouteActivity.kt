@@ -123,10 +123,10 @@ class RouteActivity : AppCompatActivity() {
 
             view.setOnClickListener { v: View ->
 
-                Log.d("JIM-ROUTEID0","T")
+
 
                 val i = Intent(v.context, CustomerListActivity::class.java)
-                Log.d("JIM-ROUTEID0", routeId.toString())
+
                 i.putExtra("routeid", routeId)
                 v.context.startActivity(i)
             }

@@ -2,6 +2,8 @@ package gr.algo.algomobilemini
 
 
 
+
+
 import android.content.Intent
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat.startActivity
@@ -14,19 +16,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.card_layout.view.*
 
-class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+class RecyclerCash : RecyclerView.Adapter<RecyclerCash.ViewHolder>() {
 
-    private val titles = arrayOf("Τιμολόγηση",
-            "Ταμείο", "Αναφορές", "Εργαλεία Διαχείρισης",
-            "Επικοινωνία με ERP")
+    private val titles = arrayOf("Εισπράξεις",
+            "Εξοδα", "'Ανοιγμα")
 
-    private val details = arrayOf("Έκδοση Τιμολογίων", "Συναλλαγές με μετρητά",
-            "Καταστάσεις αποθήκης/πωλήσεων/εισπράξεων", "Ρυθμίσεις συστήματος",
-            "Upload/Download βάσης δεομένων")
+    private val details = arrayOf("Εισπράξεις πελατών", "Διάφορα έξοδα",
+            "Άνοιγμα ταμείου")
 
-    private val images = intArrayOf(R.drawable.mm_image_1,
-            R.drawable.mm_image_2, R.drawable.mm_image_3,
-            R.drawable.mm_image_4, R.drawable.mm_image_5)
+    private val images = intArrayOf(R.drawable.collections,
+             R.drawable.expenses, R.drawable.cashier)
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -39,39 +38,33 @@ class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
             itemTitle = itemView.item_title
             itemDetail = itemView.item_detail
 
-            itemView.setOnClickListener { v: View  ->
+            itemView.setOnClickListener { v: View ->
                 var position: Int = getAdapterPosition()
-                when(position){
-                    0->{
+                when (position) {
+                    0 -> {
 
-                        val i = Intent(v.context,RouteActivity::class.java)
+                        val i = Intent(v.context, CustomerListActivity::class.java)
+                        i.putExtra("mode", 1)
                         v.context.startActivity(i)
 
                     }
-                    1->{
-                        val i = Intent(v.context,CashMenuActivity::class.java)
+                    1 -> {
+                        val i = Intent(v.context, ExpensesActivity::class.java)
                         v.context.startActivity(i)
-                    }
-                    2->{
-                        val i = Intent(v.context,InvoiceListActivity::class.java)
-                        v.context.startActivity(i)
-                    }
 
-                    3->{
-                        val i = Intent(v.context,Settings::class.java)
+                    }
+                    2 -> {
+                        val i = Intent(v.context, CashOpenActivity::class.java)
                         v.context.startActivity(i)
+
                     }
 
-                    4->{
-                        val i = Intent(v.context,UploadDB::class.java)
-                        v.context.startActivity(i)
-                    }
+
                 }
 
 
-
                 //Snackbar.make(v, "Click detected on item $position",
-                  //      Snackbar.LENGTH_LONG).setAction("Action", null).show()
+                //      Snackbar.LENGTH_LONG).setAction("Action", null).show()
             }
         }
     }

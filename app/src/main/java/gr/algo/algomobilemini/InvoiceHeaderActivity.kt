@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.EditText
 import android.widget.RadioButton
@@ -23,7 +23,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
     var vatStatusId=-1
 
     var ftrDate={
-        var answer:String
+        val answer:String
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val current = LocalDateTime.now()
             //val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm:ss")
@@ -32,7 +32,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             Log.d("answer",answer)
 
         } else {
-            var date = Date();
+            val date = Date()
             //val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
             val formatter = SimpleDateFormat("MMM dd yyyy")
             answer = formatter.format(date)
@@ -63,6 +63,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         val address:String?=extras.getString("address")
         val city:String?=extras.getString("city")
         this.cusId=extras.getInt("cusid")
+
         this.vatStatusId=extras.getInt("vatstatusid")
 
 
@@ -102,14 +103,16 @@ class InvoiceHeaderActivity : AppCompatActivity() {
                //     .setAction("Action", null).show()
             val dsrtda=findViewById<RadioButton>(R.id.tdaRadioButton)
             val dsrda=findViewById<RadioButton>(R.id.daRadioButton)
+            val dsrde=findViewById<RadioButton>(R.id.deRadioButton)
             val dsrpist=findViewById<RadioButton>(R.id.pistRadioButton)
             val dsrorder=findViewById<RadioButton>(R.id.orderRadioButton)
             val dsrtype:()->Int={
                 var type:Int=-1
                 if (dsrtda.isChecked){type=1}
-                if (dsrda.isChecked){type=2}
-                if (dsrpist.isChecked){type=3}
-                if (dsrorder.isChecked){type=4}
+                if (dsrpist.isChecked){type=2}
+                if (dsrda.isChecked){type=3}
+                if (dsrde.isChecked){type=4}
+                if (dsrorder.isChecked){type=5}
                 type
 
             }

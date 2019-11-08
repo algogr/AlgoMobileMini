@@ -84,10 +84,11 @@ class Tab2Fragment : Fragment() {
         view.acceptButton2.setOnClickListener { v:View->
             insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumVATTextView.text.toString().toFloat(),
                     view.sumTotalAmountTextView.text.toString().toFloat())
-            findBT()
-            openBT()
-            sendData()
-            closeBT()
+            TODO("ACTIVATE BLUETOOTH")
+            //findBT()
+            //openBT()
+            //sendData()
+           // closeBT()
 
 
 

@@ -2,6 +2,7 @@ package gr.algo.algomobilemini
 
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -69,6 +70,9 @@ class Tab1Fragment : Fragment() {
 
         return view
     }
+
+
+
 
     inner class MaterialListViewAdapter: BaseAdapter {
 
@@ -216,6 +220,8 @@ class Tab1Fragment : Fragment() {
                     args.putString("code",MaterialList!![position].code)
                     args.putInt("iteId",MaterialList!![position].erpid)
                     args.putInt("vtcId",MaterialList!![position].vatid)
+                    args.putFloat("price",MaterialList!![position].price)
+                    args.putFloat("discount",MaterialList!![position].maxdiscount)
                     Log.d("JIM1",MaterialList!![position].vatid.toString())
                     itemFragment.arguments=args
                     //fragmentTransaction.replace(R.id.frameLayout1, itemFragment)

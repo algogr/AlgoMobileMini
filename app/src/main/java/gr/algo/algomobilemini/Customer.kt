@@ -1,5 +1,7 @@
 package gr.algo.algomobilemini
 
-data class Customer(val name:String,val address:String?,val district:String?,val title:String?,val afm:String,val doyid:Int? ,val erpid: Int,
-                    val occupation:String?, val  tel1:String?,val tel2:String?,val fax:String?,val email:String?,val vatstatusid:Int,val city:String?,
-                    val comments:String?, val routeid:Int,val erpupd:Int,val id:Int)
+import java.io.Serializable
+
+data class Customer(val name:String="",val address:String?=null,val district:String?=null,val title:String?=null,val afm:String="",val doyid:Int?=null ,val erpid: Int=0,
+                    val occupation:String?=null, val  tel1:String?=null,val tel2:String?=null,val fax:String?=null,val email:String?=null,val vatstatusid:Int=0,val city:String?=null,
+                    val comments:String?=null, val routeid:Int=0,val erpupd:Int=0,val id:Int=-1):Serializable

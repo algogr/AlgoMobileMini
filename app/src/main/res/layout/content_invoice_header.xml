@@ -22,7 +22,7 @@
             android:layout_marginTop="96dp"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
-            android:textStyle="bold"/>
+            android:textSize="24sp" android:textStyle="bold"/>
     <TextView
             android:text="TextView"
             android:id="@+id/titleTextView"
@@ -35,7 +35,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
             android:hint="Τίτλος"
-            android:textStyle="bold"/>
+            android:textSize="24sp" android:textStyle="bold"/>
     <RadioGroup
             android:checkedButton="@+id/orderRadioButton"
             android:layout_width="wrap_content"
@@ -55,13 +55,17 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/tdaRadioButton" android:layout_weight="1"/>
         <RadioButton
+                android:text="Πιστωτικό Τιμολόγιο"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/pistRadioButton" android:layout_weight="1"/>
+        <RadioButton
                 android:text="Δελτίο Αποστολής"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/daRadioButton" android:layout_weight="1"/>
         <RadioButton
-                android:text="Πιστωτικό Τιμολόγιο"
+                android:text="Δελτίο Επιστροφής"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/pistRadioButton" android:layout_weight="1"/>
+                android:layout_height="wrap_content" android:id="@+id/deRadioButton" android:layout_weight="1"/>
         <RadioButton
                 android:text="Παραγγελία"
                 android:layout_width="wrap_content"
@@ -79,7 +83,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" android:textSize="18sp"/>
     <TextView
             android:text="TextView"
             android:id="@+id/cityTextView"
@@ -91,7 +95,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" android:textSize="18sp"/>
     <TextView
             android:text="TextView"
             android:id="@+id/ftrdateTextView"
@@ -103,7 +107,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" android:textSize="18sp"/>
     <CheckBox
             android:text="Μετρητά"
             android:layout_width="wrap_content"

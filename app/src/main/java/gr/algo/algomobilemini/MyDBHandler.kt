@@ -6,6 +6,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFactory?,
@@ -198,6 +200,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         db.execSQL(CREATE_CASHTRN)
         db.execSQL(CREATE_DOY)
         db.execSQL(CREATE_VAT)
+        db.execSQL(CREATE_STOREFINDATA)
         db.execSQL(CREATE_DOCSERIES)
         db.execSQL(CREATE_SALESMAN)
         db.execSQL(CREATE_PRINTERS)
@@ -210,6 +213,86 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     }
 
 
+
+
+    fun getInvoiceById(ftrId:Int):FinDoc{
+        val query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments,f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d." +
+                "shortdescr FROM fintrade f,docseries d where f.dsrid=d.id and f.id="+ftrId.toString()
+
+        val db=this.writableDatabase
+        val cursor=db.rawQuery(query,null)
+        cursor.moveToPosition(0)
+        val id= cursor.getInt(0)
+        val ftrDate = cursor.getString(1)
+        val dsrId=cursor.getInt(2)
+        val dsrNumber=cursor.getInt(3)
+        val cusId=cursor.getInt(4)
+        val salesmanId=cursor.getInt(5)
+        val comments=cursor.getString(6)
+        val deliveryAddress:String=cursor.getString(7)
+        val erpUpd:Int=cursor.getInt(8)
+        val netValue:Float=cursor.getFloat(9)
+        val vatAmount:Float=cursor.getFloat(10)
+        val totAmount:Float=cursor.getFloat(11)
+        val shortDescr=cursor.getString(12)
+
+        val invoice=FinDoc(id,cusId,dsrId,ftrDate,dsrNumber,salesmanId,comments,deliveryAddress,erpUpd,netValue,vatAmount,totAmount,shortDescr=shortDescr)
+
+        return invoice
+
+    }
+
+    fun getInvoices():MutableList<FinDoc>
+    {
+        val query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments,f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d.shortdescr FROM fintrade f,docseries d where f.dsrid=d.id order by ftrdate,dsrnumber"
+
+        val db=this.writableDatabase
+        val cursor=db.rawQuery(query,null)
+
+        val invoiceList= mutableListOf<FinDoc>()
+
+        val i=cursor.count-1
+        for (j in 0..i)
+        {
+            cursor.moveToPosition(j)
+
+
+
+
+            val id= cursor.getInt(0)
+            val ftrDate = cursor.getString(1)
+            val dsrId=cursor.getInt(2)
+            val dsrNumber=cursor.getInt(3)
+            val cusId=cursor.getInt(4)
+            val salesmanId=cursor.getInt(5)
+            val comments=cursor.getString(6)
+            val deliveryAddress:String=cursor.getString(7)
+            val erpUpd:Int=cursor.getInt(8)
+            val netValue:Float=cursor.getFloat(9)
+            val vatAmount:Float=cursor.getFloat(10)
+            val totAmount:Float=cursor.getFloat(11)
+            val shortDescr=cursor.getString(12)
+
+
+            val invoice=FinDoc(id,cusId,dsrId,ftrDate,dsrNumber,salesmanId,comments,deliveryAddress,erpUpd,netValue,vatAmount,totAmount,shortDescr=shortDescr)
+
+
+
+            invoiceList.add(j,invoice)
+
+
+        }
+        cursor.close()
+        db.close()
+        return  invoiceList
+
+
+    }
+
+
+
+
+
     fun getAllRoutes():MutableList<Route>?
     {
         val query="SELECT * FROM Route"
@@ -217,7 +300,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-        var routeList= mutableListOf<Route>()
+        val routeList= mutableListOf<Route>()
 
         val i=cursor.count-1
         for (j in 0..i)
@@ -247,11 +330,10 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomersByRoute(route:Int):MutableList<Customer>?
     {
         val query="SELECT * FROM customer WHERE routeid=$route order by name"
-        Log.d("JIM-ROUTEQUERT",query)
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-        var customerList= mutableListOf<Customer>()
+        val customerList= mutableListOf<Customer>()
 
         val i=cursor.count-1
         for (j in 0..i)
@@ -347,7 +429,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-        var customerList= mutableListOf<Customer>()
+        val customerList= mutableListOf<Customer>()
 
         val i=cursor.count-1
         for (j in 0..i)
@@ -398,7 +480,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-        var itemList= mutableListOf<Material>()
+        val itemList= mutableListOf<Material>()
 
         val i=cursor.count-1
         for (j in 0..i)
@@ -437,7 +519,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
-        var doyList= mutableListOf<Doy>()
+        val doyList= mutableListOf<Doy>()
 
         val i=cursor.count-1
         for (j in 0..i)
@@ -518,14 +600,58 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         db.close()
     }
 
+    fun insertCollection(customer: Customer,amount:Float)
+    {
+        val db=this.writableDatabase
+        val cusId=if (customer.erpid>0 ) customer.erpid else customer.id
+        val query= "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,perid) VALUES (date('now'),1," +amount.toString()+",'" + customer.name+
+         "'," + "1" + "," +  cusId.toString() + ")"
+        Log.d("JIM",query)
+        db.execSQL(query)
+        db.close()
+    }
 
-    fun insertInvoice(findoc:FinDoc):Int{
+
+    fun insertExpense(amount:Float,justification:String?)
+    {
+        val db=this.writableDatabase
+
+        val query= "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory) " +
+                "VALUES (date('now'),1," +amount.toString()+",'" + justification+
+                "'," + "1" +  ")"
+
+        db.execSQL(query)
+        db.close()
+    }
+
+
+    fun insertCashOpen(amount:Float)
+    {
+        val db=this.writableDatabase
+
+        val query= "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory) " +
+                "VALUES (date('now'),0," +amount.toString()+",'Άνοιγμα Ταμείου'," + "1" +  ")"
+
+        db.execSQL(query)
+        db.close()
+    }
+
+
+
+
+    fun insertInvoice(findoc:FinDoc,isUpdate:Boolean):Int{
         var query="SELECT lastno FROM docseries WHERE codeid='"+findoc.dsrId.toString()+"'"
         val db=this.writableDatabase
         var cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
-        val lastno=cursor.getInt(0)
+        val lastno= {
+            var no = cursor.getInt(0)
+            if (isUpdate) no else no+=1
+            no
+        }
+                cursor.getInt(0)
         query="SELECT erpid FROM customer WHERE id="+findoc.cusId
+        Log.d("JIM",query)
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         var cusErpId=cursor.getInt(0)
@@ -533,7 +659,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
 
        query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash) VALUES " +
-                "(date('now'),"+findoc.dsrId.toString()+","+(lastno+1).toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
+                "(date('now'),"+findoc.dsrId.toString()+","+(lastno()).toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
                 "',"+findoc.erpUpd.toString()+","+findoc.netValue.toString()+","+ findoc.vatAmount.toString()+
                 ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+")"
         Log.d("JIM",query)
@@ -543,7 +669,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val ftrid=cursor.getInt(0)
-        query="UPDATE docseries SET lastno="+(lastno+1).toString()+" where codeid="+findoc.dsrId.toString()
+        query="UPDATE docseries SET lastno="+(lastno()).toString()+" where codeid="+findoc.dsrId.toString()
         Log.d("JIM",query)
         db.execSQL(query)
         if(findoc.isCash==0) {
@@ -564,6 +690,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     }
 
 
+
+
+
     fun insertLines(ftrId:Int,findocLines:MutableList<FinDocLine>){
         val db=this.writableDatabase
         for (findocLine in findocLines)
@@ -580,9 +709,40 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     }
 
+    fun getInvoiceLines(ftrId:Int):MutableList<FinDocLine>{
+        val db=this.writableDatabase
+        val query="select st.iteid,st.primaryqty,st.price,st.discount,st.linevalue,st.vatamount,st.vatid,m.code,m.description " +
+                "from storetradelines st,material m where m.erpid=st.iteid and st.ftrid="+ftrId.toString()
+        Log.d("JIM-MODE",query)
+        val cursor=db.rawQuery(query,null)
+        val finDocLines= mutableListOf<FinDocLine>()
+        val i=cursor.count-1
+        for (j in 0..i) {
+            cursor.moveToPosition(j)
+            val iteId = cursor.getInt(0)
+            val primaryQty = cursor.getFloat(1)
+            val price = cursor.getFloat(2)
+            val discount = cursor.getFloat(3)
+            val lineValue = cursor.getFloat(4)
+            val vatAmount = cursor.getFloat(5)
+            val vatId = cursor.getInt(6)
+            val iteCode=cursor.getString(7)
+            val iteDescription=cursor.getString(8)
+
+            val finDocLine = FinDocLine(iteID = iteId, firstQty = primaryQty, price = price, discount = discount, netValue = lineValue, vatValue = vatAmount, vtcID = vatId,iteCode = iteCode,iteDescription = iteDescription)
+            finDocLines.add(finDocLine)
+        }
+        cursor.close()
+        db.close()
+        return finDocLines
+
+
+
+    }
+
     fun insertCustomer(customer:Customer){
         val db=this.writableDatabase
-        var query="INSERT INTO customer (name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,routeid,erpupd) " +
+        val query="INSERT INTO customer (name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,routeid,erpupd) " +
                 "VALUES('"+customer.name+"','"+customer.address+"','"+customer.district+"','"+customer.title+"','"+customer.afm+"',"+customer.doyid+","+customer.erpid+",'"+
                 customer.occupation+"','"+customer.tel1+"','"+customer.tel2+"','"+customer.fax+"','"+customer.email+"',"+customer.vatstatusid+",'"+customer.city+"','"+customer.comments+
                 "',"+customer.routeid+",0)"
@@ -596,7 +756,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     {
         val db=this.writableDatabase
         val query="SELECT percent0,percent1 FROM vat where codeid='"+vtcId+"'"
-        Log.d("JIMP",query.toString())
+
         val cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val percent=cursor.getFloat(status)

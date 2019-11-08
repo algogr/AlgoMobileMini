@@ -19,11 +19,12 @@ import kotlin.collections.ArrayList
 class CustomerListActivity : AppCompatActivity() {
 
     private var routeId:Int=0
+    private var mode=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_list)
-        setTitle("Πελάτες Δρομολογίου")
+        setTitle("Πελάτες")
         val listview = findViewById<ListView>(R.id.listView)
 
         //Find View By Id For SearchView
@@ -33,8 +34,8 @@ class CustomerListActivity : AppCompatActivity() {
         val extras=intent.extras?:return
 
         routeId=extras.getInt("routeid")
-
-        val customerList:MutableList<Customer>? = handler.getCustomersByRoute(routeId)
+        if(extras.getInt("mode")==1) mode=1
+        val customerList:MutableList<Customer>? = if(mode==0) handler.getCustomersByRoute(routeId) else handler.getAllCustomers()
         val customerlistAdapter=CustomerListViewAdapter(this@CustomerListActivity,customerList)
 
 
@@ -71,6 +72,9 @@ class CustomerListActivity : AppCompatActivity() {
 
         }
 
+        if (mode==1) fab.hide()
+
+
 
 
 
@@ -82,7 +86,11 @@ class CustomerListActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val i= Intent(this,RouteActivity::class.java)
+        val i:Intent
+        if(mode==0)
+            i= Intent(this,RouteActivity::class.java)
+        else
+            i= Intent(this,MainActivity::class.java)
 
         startActivity(i)
     }
@@ -119,7 +127,7 @@ class CustomerListActivity : AppCompatActivity() {
 
             if (convertView==null){
                 view= layoutInflater.inflate(R.layout.customerlist_item,parent,false)
-                holder= CustomerListActivity.ViewHolder(view)
+                holder= ViewHolder(view)
                 view.tag=holder
 
             }
@@ -138,6 +146,8 @@ class CustomerListActivity : AppCompatActivity() {
             holder.address=CustomerList!![position].address
             holder.city=CustomerList!![position].city
             holder.vatStatusId=CustomerList!![position].vatstatusid
+            holder.customer=CustomerList!![position]
+            Log.d("JIM_CUSTOMER",holder.customer.toString())
 
 
 
@@ -216,7 +226,7 @@ class CustomerListActivity : AppCompatActivity() {
     }
 
 
-    private class ViewHolder(view: View?){
+    inner class ViewHolder(view: View?){
         var textView: TextView
         var position:Int
         var cusId:Int
@@ -225,8 +235,7 @@ class CustomerListActivity : AppCompatActivity() {
         var city:String?
         var name:String
         var vatStatusId:Int
-
-
+        var customer:Customer
         init{
 
             this.textView=view?.findViewById<TextView>(R.id.textView3) as TextView
@@ -238,6 +247,7 @@ class CustomerListActivity : AppCompatActivity() {
             this.name=""
             this.city=""
             this.vatStatusId=-1
+            this.customer=Customer()
 
 
             view.setOnClickListener { v: View  ->
@@ -252,15 +262,24 @@ class CustomerListActivity : AppCompatActivity() {
                     }
                 }
                 */
-
-
-                val i = Intent(v.context,InvoiceHeaderActivity::class.java)
-                i.putExtra("cusid",cusId)
-                i.putExtra("name",name)
-                i.putExtra("title",title)
-                i.putExtra("address",address)
-                i.putExtra("city",city)
-                i.putExtra("vatstatusid",vatStatusId)
+                val i:Intent
+                if(mode==0) {
+                    i = Intent(v.context, InvoiceHeaderActivity::class.java)
+                    i.putExtra("cusid", cusId)
+                    i.putExtra("name", name)
+                    i.putExtra("title", title)
+                    i.putExtra("address", address)
+                    i.putExtra("city", city)
+                    i.putExtra("vatstatusid", vatStatusId)
+                }
+                else
+                {
+                    i = Intent(v.context, CollectionActivity::class.java)
+                    val bundle=Bundle()
+                    Log.d("JIM-CUSTOMER2",customer.toString())
+                    bundle.putSerializable("customer",customer)
+                    i.putExtras(bundle)
+                }
 
 
 

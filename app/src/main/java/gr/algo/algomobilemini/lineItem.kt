@@ -249,6 +249,8 @@ class lineItem : Fragment() {
         vtcId=arguments?.getInt("vtcId")
         mode=arguments?.getInt("mode")
         vatStatus=arguments?.getInt("vatstatus")
+        price=arguments?.getFloat("price")
+        discount=arguments?.getFloat("discount")
 
         val handler=MyDBHandler(context = this.context,version = 1,name=null,factory = null)
         vatprc=handler.getVatPercent(vtcId.toString(),vatStatus!!)
@@ -256,6 +258,8 @@ class lineItem : Fragment() {
         textCode?.setText(code)
         textDescr?.setText(description)
         vatPrcTextView.setText(vatprc.toString())
+        priceEdit.text=SpannableStringBuilder(price.toString())
+        discountEdit.text=SpannableStringBuilder(discount.toString())
         if (mode==1)
         {
             position=arguments!!.getInt("position")
