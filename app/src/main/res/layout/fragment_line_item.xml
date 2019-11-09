@@ -24,7 +24,7 @@
                     android:textSize="18sp" android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginRight="8dp" android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="15dp"
                     app:layout_constraintTop_toTopOf="parent"/>
             <TextView
                     android:text="TextView"
@@ -34,7 +34,7 @@
                     android:textStyle="bold" android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginRight="8dp" android:layout_marginStart="8dp"
                     app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-                    app:layout_constraintHorizontal_bias="0.484" android:layout_marginTop="8dp"
+                    app:layout_constraintHorizontal_bias="0.484" android:layout_marginTop="15dp"
                     app:layout_constraintTop_toBottomOf="@+id/textCode"/>
             <EditText
                     android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
                     android:inputType="numberDecimal"
                     android:ems="10"
                     android:id="@+id/priceEdit" app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="24dp" android:layout_marginTop="16dp"
+                    android:layout_marginEnd="24dp" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/firstQtyEdit" android:textAlignment="textEnd"/>
             <EditText
                     android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
                     android:inputType="numberDecimal"
                     android:ems="10"
                     android:id="@+id/discountEdit" app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="24dp" android:layout_marginTop="16dp"
+                    android:layout_marginEnd="24dp" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/priceEdit" android:textAlignment="textEnd"/>
             <EditText
                     android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
                     android:ems="10"
                     android:id="@+id/firstQtyEdit" app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginEnd="24dp"
-                    android:textAlignment="textEnd" android:layout_marginTop="8dp"
+                    android:textAlignment="textEnd" android:layout_marginTop="15dp"
                     app:layout_constraintTop_toBottomOf="@+id/cancelButton2"/>
             <TextView
                     android:text="Ποσότητα:"
@@ -68,7 +68,7 @@
                     android:id="@+id/textView7" app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="8dp" app:layout_constraintEnd_toStartOf="@+id/firstQtyEdit"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/acceptButton2"/>
+                    android:layout_marginTop="15dp" app:layout_constraintTop_toBottomOf="@+id/acceptButton2"/>
             <TextView
                     android:text="Τιμή:"
                     android:layout_width="84dp"
@@ -77,7 +77,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/priceEdit"
                     android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
                     app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-                    android:layout_marginStart="8dp" android:layout_marginTop="16dp"
+                    android:layout_marginStart="8dp" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView7"/>
             <TextView
                     android:text="Έκπτωση(%):"
@@ -87,7 +87,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/discountEdit"
                     android:layout_marginEnd="8dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="8dp" android:layout_marginTop="16dp"
+                    android:layout_marginStart="8dp" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView8"/>
             <TextView
                     android:text="Αξία:"
@@ -95,27 +95,27 @@
                     android:layout_height="45dp"
                     android:id="@+id/textView10"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="8dp" android:layout_marginTop="16dp"
+                    android:layout_marginStart="8dp" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView9"
                     app:layout_constraintEnd_toStartOf="@+id/netValueTextView" android:layout_marginEnd="8dp"/>
             <Button
                     android:layout_width="47dp"
                     android:layout_height="47dp"
-                    android:id="@+id/acceptButton2" android:layout_marginTop="8dp"
+                    android:id="@+id/acceptButton2" android:layout_marginTop="15dp"
                     app:layout_constraintTop_toBottomOf="@+id/textDescr" app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="8dp" app:layout_constraintEnd_toStartOf="@+id/cancelButton2"
                     android:layout_marginEnd="8dp" android:background="@drawable/checkmark"/>
             <Button
                     android:layout_width="47dp"
                     android:layout_height="47dp"
-                    android:id="@+id/cancelButton2" android:layout_marginTop="8dp"
+                    android:id="@+id/cancelButton2" android:layout_marginTop="15dp"
                     app:layout_constraintTop_toBottomOf="@+id/textDescr" app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginEnd="88dp" android:background="@drawable/cancel"/>
             <TextView
                     android:text="ΦΠΑ %"
                     android:layout_width="86dp"
                     android:layout_height="40dp"
-                    android:id="@+id/textView6" android:layout_marginTop="16dp"
+                    android:id="@+id/textView6" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView10" app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="8dp" app:layout_constraintEnd_toStartOf="@+id/vatPrcTextView"
                     android:layout_marginEnd="8dp"/>
@@ -125,12 +125,12 @@
                     android:id="@+id/vatPrcTextView"
                     android:textAlignment="textEnd"
                     app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="24dp"
-                    android:layout_marginTop="16dp" app:layout_constraintTop_toBottomOf="@+id/netValueTextView"/>
+                    android:layout_marginTop="25dp" app:layout_constraintTop_toBottomOf="@+id/netValueTextView"/>
             <TextView
                     android:text="Αξία ΦΠΑ"
                     android:layout_width="86dp"
                     android:layout_height="32dp"
-                    android:id="@+id/textView12" android:layout_marginTop="16dp"
+                    android:id="@+id/textView12" android:layout_marginTop="25dp"
                     app:layout_constraintTop_toBottomOf="@+id/textView6"
                     app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
                     app:layout_constraintEnd_toStartOf="@+id/vatValueTextView" android:layout_marginEnd="8dp"/>
@@ -138,14 +138,14 @@
                     android:layout_width="216dp"
                     android:layout_height="37dp"
                     android:textAlignment="textEnd"
-                    android:layout_marginTop="16dp" app:layout_constraintTop_toBottomOf="@+id/vatPrcTextView"
+                    android:layout_marginTop="25dp" app:layout_constraintTop_toBottomOf="@+id/vatPrcTextView"
                     app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="24dp"
                     android:id="@+id/vatValueTextView"/>
             <TextView
                     android:layout_width="206dp"
                     android:layout_height="44dp"
                     android:id="@+id/netValueTextView" app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="24dp" android:layout_marginTop="16dp"
+                    android:layout_marginEnd="24dp" android:layout_marginTop="15dp"
                     app:layout_constraintTop_toBottomOf="@+id/discountEdit" android:textAlignment="textEnd"/>
         </android.support.constraint.ConstraintLayout>
     </ScrollView>

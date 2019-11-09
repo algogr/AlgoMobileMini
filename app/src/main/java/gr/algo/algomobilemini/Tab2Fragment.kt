@@ -84,7 +84,7 @@ class Tab2Fragment : Fragment() {
         view.acceptButton2.setOnClickListener { v:View->
             insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumVATTextView.text.toString().toFloat(),
                     view.sumTotalAmountTextView.text.toString().toFloat())
-            TODO("ACTIVATE BLUETOOTH")
+            //TODO("ACTIVATE BLUETOOTH")
             //findBT()
             //openBT()
             //sendData()
@@ -258,6 +258,7 @@ class Tab2Fragment : Fragment() {
                 args.putInt("vatstatus",vatStatus)
                 args.putInt("mode",1)
                 args.putInt("position",position)
+
 
                 itemFragment.basket=this@Tab2Fragment
                 itemFragment.arguments=args

@@ -63,6 +63,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         val address:String?=extras.getString("address")
         val city:String?=extras.getString("city")
         this.cusId=extras.getInt("cusid")
+        val balance=extras.getFloat("balance")
 
         this.vatStatusId=extras.getInt("vatstatusid")
 
@@ -80,6 +81,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         titleText.setText(title)
         addressText.setText(address)
         cityText.setText(city)
+        balanceTextView.setText("ΥΠOΛΟΙΠΟ:"+balance.toString())
 
         ftrdateText.setText(ftrDate())
 

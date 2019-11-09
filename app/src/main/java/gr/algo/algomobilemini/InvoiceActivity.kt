@@ -229,9 +229,9 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        var i:Intent=if (mode==0) Intent(this, RouteActivity::class.java) else Intent(this, InvoiceListActivity::class.java)
-        startActivity(i)
+        //super.onBackPressed()
+        //var i:Intent=if (mode==0) Intent(this, RouteActivity::class.java) else Intent(this, InvoiceListActivity::class.java)
+        //startActivity(i)
     }
 
 

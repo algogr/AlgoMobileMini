@@ -82,7 +82,7 @@ class InvoiceListActivity : AppCompatActivity() {
             holder.dateText.text=invoiceList!![position].ftrdate.toString()
             holder.dsrNumberText.text=invoiceList!![position].dsrNumber.toString()
             val handler=MyDBHandler(context = this.context!!,version = 1,name=null,factory = null)
-            holder.cusNameText.text=handler.getCustomerById(invoiceList!![position].cusId).name
+            holder.cusNameText.text=handler.getCustomerByErpId(invoiceList!![position].cusId)?.name?:handler.getCustomerById(invoiceList!![position].cusId)?.name
             holder.totalText.text=invoiceList!![position].totAmount.toString()
             holder.shortDescrText.text=invoiceList!![position].shortDescr.toString()
             holder.ftrId=invoiceList!![position].id

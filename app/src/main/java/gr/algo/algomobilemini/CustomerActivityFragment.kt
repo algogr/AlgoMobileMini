@@ -43,22 +43,22 @@ class CustomerActivityFragment : Fragment() {
         if (cusId!!>0)
         {
             val customer=myHandler.getCustomerById(cusId!!)
-            editName.text=SpannableStringBuilder(customer.name)
-            editAddress.text=SpannableStringBuilder(customer.address)
-            editDistrict.text=SpannableStringBuilder(customer.district)
-            editTitle.text=SpannableStringBuilder(customer.title)
-            editAFM.text=SpannableStringBuilder(customer.afm)
-            editOccupation.text=SpannableStringBuilder(customer.occupation)
-            editPhone1.text=SpannableStringBuilder(customer.tel1)
-            editPhone2.text=SpannableStringBuilder(customer.tel2)
-            editFax.text=SpannableStringBuilder(customer.fax)
-            editEmail.text=SpannableStringBuilder(customer.email)
-            switchVat.isChecked=(customer.vatstatusid==1)
-            editCity.text=SpannableStringBuilder(customer.city)
-            editComments.text=SpannableStringBuilder(customer.comments)
-            routeid=customer.routeid
+            editName.text=SpannableStringBuilder(customer?.name)
+            editAddress.text=SpannableStringBuilder(customer?.address)
+            editDistrict.text=SpannableStringBuilder(customer?.district)
+            editTitle.text=SpannableStringBuilder(customer?.title)
+            editAFM.text=SpannableStringBuilder(customer?.afm)
+            editOccupation.text=SpannableStringBuilder(customer?.occupation)
+            editPhone1.text=SpannableStringBuilder(customer?.tel1)
+            editPhone2.text=SpannableStringBuilder(customer?.tel2)
+            editFax.text=SpannableStringBuilder(customer?.fax)
+            editEmail.text=SpannableStringBuilder(customer?.email)
+            switchVat.isChecked=(customer?.vatstatusid==1)
+            editCity.text=SpannableStringBuilder(customer?.city)
+            editComments.text=SpannableStringBuilder(customer?.comments)
+            routeid=customer?.routeid
             if (doyid==null) {
-                doyid=customer.doyid
+                doyid=customer?.doyid
                 buttonDOY.text=myHandler.getDoybyErpid(doyid!!).description
             }
 

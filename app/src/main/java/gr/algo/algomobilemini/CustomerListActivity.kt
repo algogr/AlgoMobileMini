@@ -146,6 +146,7 @@ class CustomerListActivity : AppCompatActivity() {
             holder.address=CustomerList!![position].address
             holder.city=CustomerList!![position].city
             holder.vatStatusId=CustomerList!![position].vatstatusid
+            holder.balance=CustomerList!![position].balance
             holder.customer=CustomerList!![position]
             Log.d("JIM_CUSTOMER",holder.customer.toString())
 
@@ -235,7 +236,9 @@ class CustomerListActivity : AppCompatActivity() {
         var city:String?
         var name:String
         var vatStatusId:Int
+        var balance:Float
         var customer:Customer
+
         init{
 
             this.textView=view?.findViewById<TextView>(R.id.textView3) as TextView
@@ -247,6 +250,7 @@ class CustomerListActivity : AppCompatActivity() {
             this.name=""
             this.city=""
             this.vatStatusId=-1
+            this.balance=0.00f
             this.customer=Customer()
 
 
@@ -271,6 +275,7 @@ class CustomerListActivity : AppCompatActivity() {
                     i.putExtra("address", address)
                     i.putExtra("city", city)
                     i.putExtra("vatstatusid", vatStatusId)
+                    i.putExtra("balance",balance)
                 }
                 else
                 {

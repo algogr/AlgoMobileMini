@@ -27,7 +27,11 @@ class lineItem : Fragment() {
     var netValue:Float?=0.00f
     var vatValue:Float?=0.00f
     var vatStatus:Int?=-1
-    var vatprc:Float=0.00f
+    var vatprc:Float?=0.00f
+    var lastQty:Float?=0.00f
+    var lastPrice:Float?=0.00f
+    var lastDiscount:Float?=0.00f
+    var lastDate:String?=""
 
 
     var mode:Int?=0 //0-Insert     1-Edit
@@ -229,7 +233,7 @@ class lineItem : Fragment() {
         val price=p.text?.toString()?.toFloatOrNull()?:0.00f
         val discount=d.text?.toString()?.toFloatOrNull()?:0.00f
         val rv:Float=qty*price-(qty*price*discount/100)
-        val vatvalue=rv*vatprc/100
+        val vatvalue=rv*vatprc!!/100
         view.vatValueTextView.text=vatvalue.toString()
         return  vatvalue.toString()
     }
@@ -240,7 +244,7 @@ class lineItem : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        Log.d("JIM20","ONRESUME")
+
         //val t=activity as InvoiceActivity
         // basket=t.basket
         code=arguments?.getString("code")
@@ -252,14 +256,30 @@ class lineItem : Fragment() {
         price=arguments?.getFloat("price")
         discount=arguments?.getFloat("discount")
 
+
         val handler=MyDBHandler(context = this.context,version = 1,name=null,factory = null)
         vatprc=handler.getVatPercent(vtcId.toString(),vatStatus!!)
+        val t= activity as InvoiceActivity
+        val tId=t.finDoc.cusId
+        val customerId=handler.getCustomerById(tId)?.erpid
+        val bundle:Bundle=handler.getStoreCustData(customerId,erpId!!)
+        lastQty=bundle?.getFloat("lastqty")
+        lastPrice=bundle?.getFloat("lastprice")
+        lastDiscount=bundle?.getFloat("lastdiscount")
+        lastDate=bundle?.getString("lastdate")
+
 
         textCode?.setText(code)
         textDescr?.setText(description)
         vatPrcTextView.setText(vatprc.toString())
         priceEdit.text=SpannableStringBuilder(price.toString())
         discountEdit.text=SpannableStringBuilder(discount.toString())
+        textView7.text="Ποσότητα:("+lastQty+")"
+        textView8.text="Τιμή:("+lastPrice+")"
+        textView9.text="Εκπτωση%:("+lastDiscount+")"
+
+
+
         if (mode==1)
         {
             position=arguments!!.getInt("position")

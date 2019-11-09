@@ -103,11 +103,23 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/cityTextView"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/cashcheckBox"
+            app:layout_constraintBottom_toTopOf="@+id/balanceTextView"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="8dp"
             android:textStyle="bold" android:textSize="18sp"/>
+    <TextView
+            android:text="TextView"
+            android:id="@+id/balanceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/ftrdateTextView"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cashcheckBox"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:textStyle="bold" android:textSize="18sp" android:textAlignment="textEnd"/>
     <CheckBox
             android:text="Μετρητά"
             android:layout_width="wrap_content"

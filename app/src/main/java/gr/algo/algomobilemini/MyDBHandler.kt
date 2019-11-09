@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.os.Bundle
 import android.util.Log
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -329,7 +330,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getCustomersByRoute(route:Int):MutableList<Customer>?
     {
-        val query="SELECT * FROM customer WHERE routeid=$route order by name"
+        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.routeid=$route order by c.name"
+
+
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
 
@@ -359,10 +362,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val routeid:Int=Integer.parseInt(cursor.getString(15))
             val erpupd:Int=Integer.parseInt(cursor.getString(16))
             val id:Int =cursor.getInt(17)
+            val balance:Float=cursor.getFloat(18)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
-                    routeid,erpupd,id)
+                    routeid,erpupd,id,balance)
 
 
             customerList.add(j,customer)
@@ -378,38 +382,85 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     }
 
 
-    fun getCustomerById(cusId:Int):Customer
+    fun getCustomerById(cusId:Int):Customer?
     {
 
-        val query="SELECT * FROM Customer where id="+cusId
-        Log.d("JIM1-CUSQIE",query)
+        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.id="+cusId
+        Log.d("JIM-QUERY",query)
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
+        var customer:Customer?=null
+        if(cursor.moveToPosition(0)) {
+            val name: String = cursor.getString(0)
+            val address: String? = cursor.getString(1)
+            val district: String? = cursor.getString(2)
+            val title: String? = cursor.getString(3)
+            val afm: String = cursor.getString(4)
+            val doyid: Int? = cursor.getInt(5)
+            val erpid: Int = cursor.getInt(6)
+            val occupation: String? = cursor.getString(7)
+            val tel1: String? = cursor.getString(8)
+            val tel2: String? = cursor.getString(9)
+            val fax: String? = cursor.getString(10)
+            val email: String? = cursor.getString(11)
+            val vatstatusid: Int = cursor.getInt(12)
+            val city: String? = cursor.getString(13)
+            val comments: String? = cursor.getString(14)
+            val routeid: Int = cursor.getInt(15)
+            val erpupd: Int = cursor.getInt(16)
+            val id: Int = cursor.getInt(17)
+            val balance: Float = cursor.getFloat(18)
 
-        cursor.moveToPosition(0)
-            val name:String=cursor.getString(0)
-            val address:String?=cursor.getString(1)
-            val district:String?=cursor.getString(2)
-            val title:String?=cursor.getString(3)
-            val afm:String=cursor.getString(4)
-            val doyid:Int?=cursor.getInt(5)
-            val erpid: Int=cursor.getInt(6)
-            val occupation:String?=cursor.getString(7)
-            val tel1:String?=cursor.getString(8)
-            val tel2:String?=cursor.getString(9)
-            val fax:String?=cursor.getString(10)
-            val email:String?=cursor.getString(11)
-            val vatstatusid:Int=cursor.getInt(12)
-            val city:String?=cursor.getString(13)
-            val comments:String?=cursor.getString(14)
-            val routeid:Int=cursor.getInt(15)
-            val erpupd:Int=cursor.getInt(16)
-            val id:Int=cursor.getInt(17)
+
+            customer = Customer(name, address, district, title, afm, doyid, erpid, occupation, tel1, tel2, fax, email, vatstatusid, city, comments,
+                    routeid, erpupd, id, balance)
 
 
-            val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
-                    routeid,erpupd,id)
 
+            cursor.close()
+            db.close()
+        }
+
+
+        return  customer
+
+
+    }
+
+
+    fun getCustomerByErpId(cusId:Int):Customer? {
+
+        val query = "SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.erpid=" + cusId
+        Log.d("JIM-QUERY", query)
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var customer: Customer? = null
+        if (cursor.moveToPosition(0))
+        {
+        val name: String = cursor.getString(0)
+        val address: String? = cursor.getString(1)
+        val district: String? = cursor.getString(2)
+        val title: String? = cursor.getString(3)
+        val afm: String = cursor.getString(4)
+        val doyid: Int? = cursor.getInt(5)
+        val erpid: Int = cursor.getInt(6)
+        val occupation: String? = cursor.getString(7)
+        val tel1: String? = cursor.getString(8)
+        val tel2: String? = cursor.getString(9)
+        val fax: String? = cursor.getString(10)
+        val email: String? = cursor.getString(11)
+        val vatstatusid: Int = cursor.getInt(12)
+        val city: String? = cursor.getString(13)
+        val comments: String? = cursor.getString(14)
+        val routeid: Int = cursor.getInt(15)
+        val erpupd: Int = cursor.getInt(16)
+        val id: Int = cursor.getInt(17)
+        val balance: Float = cursor.getFloat(18)
+
+
+        customer = Customer(name, address, district, title, afm, doyid, erpid, occupation, tel1, tel2, fax, email, vatstatusid, city, comments,
+                routeid, erpupd, id, balance)
+    }
 
 
         cursor.close()
@@ -421,10 +472,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     }
 
 
+
     fun getAllCustomers():MutableList<Customer>
     {
 
-        val query="SELECT * FROM Customer order by name"
+        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid order by c.name"
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -455,10 +507,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val routeid:Int=Integer.parseInt(cursor.getString(15))
             val erpupd:Int=Integer.parseInt(cursor.getString(16))
             val id:Int=Integer.parseInt(cursor.getString(17))
+            val balance:Float=cursor.getFloat(18)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
-                    routeid,erpupd,id)
+                    routeid,erpupd,id,balance)
 
 
             customerList.add(j,customer)
@@ -475,7 +528,8 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getAllItems():MutableList<Material>
     {
-        val query="SELECT * FROM Material"
+        val query="SELECT m.*,st.qty FROM Material m left outer join storefindata st on m.erpid=" +
+                "st.iteid order by m.description"
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -494,8 +548,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val unit=cursor.getString(5)
             val erpid=cursor.getInt(6)
             val id=cursor.getInt(7)
+            val balance=cursor.getFloat(8)
 
-            val item=Material(code,description, price, vatid, maxdiscount, unit, erpid, id)
+            val item=Material(code,description, price, vatid, maxdiscount, unit, erpid, id,balance)
 
             itemList.add(j,item)
 
@@ -508,6 +563,36 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         cursor.close()
         db.close()
         return itemList
+
+
+    }
+
+    fun getStoreCustData(cusId:Int?,iteId:Int):Bundle
+    {
+        val query="SELECT ifnull(lastqty,0),lastdate,ifnull(lastprice,0),ifnull(lastdiscount,0),ifnull(lastdiscount2,0) from storecustdata where iteid="+
+                iteId.toString()+" and cusid="+cusId.toString()
+        Log.d("JIM-QUERY",query)
+        val db=this.writableDatabase
+        val cursor=db.rawQuery(query,null)
+        val bundle: Bundle = Bundle()
+        if (cursor.moveToPosition(0)) {
+
+            bundle.putFloat("lastqty", cursor.getFloat(0))
+            bundle.putFloat("lastprice", cursor.getFloat(2))
+            bundle.putFloat("lastdiscount", cursor.getFloat(3))
+            bundle.putFloat("lastdiscount2", cursor.getFloat(4))
+            bundle.putString("lastdate", cursor.getString(1))
+        }
+        else
+        {
+            bundle.putFloat("lastqty", 0f)
+            bundle.putFloat("lastprice", 0f)
+            bundle.putFloat("lastdiscount", 0f)
+            bundle.putFloat("lastdiscount2", 0f)
+            bundle.putString("lastdate", "")
+
+        }
+        return bundle
 
 
     }

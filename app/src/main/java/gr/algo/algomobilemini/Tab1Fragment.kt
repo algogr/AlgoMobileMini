@@ -2,7 +2,6 @@ package gr.algo.algomobilemini
 
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -14,6 +13,7 @@ import android.widget.ListView
 import android.widget.SearchView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_tab1.*
+import kotlinx.android.synthetic.main.fragment_tab1_item.*
 import java.util.*
 
 
@@ -123,7 +123,8 @@ class Tab1Fragment : Fragment() {
 
 
             holder.position=position
-            holder.textView.text=MaterialList!![position].description
+            holder.descrTextView.text=MaterialList!![position].description
+            holder.balanceTextView.text=(MaterialList!![position].balance?:0.00f).toString()
 
             return view
         }
@@ -198,13 +199,15 @@ class Tab1Fragment : Fragment() {
 
 
         inner class ViewHolder(view: View?){
-            var textView: TextView
+            var descrTextView: TextView
+            var balanceTextView:TextView
+
             var position:Int
 
             init{
 
-                this.textView=view?.findViewById<TextView>(R.id.itemText) as TextView
-
+                this.descrTextView=view?.findViewById<TextView>(R.id.itemText) as TextView
+                this.balanceTextView=view?.findViewById<TextView>(R.id.balanceText) as TextView
                 this.position=-1
                 view.setOnClickListener { v: View ->
 
