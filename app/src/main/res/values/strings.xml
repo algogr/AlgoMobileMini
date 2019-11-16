@@ -13,4 +13,6 @@
     <string name="title_activity_collection_avtivity">CollectionAvtivity</string>
     <string name="title_activity_expenses">ExpensesActivity</string>
     <string name="title_activity_cash_open">CashOpenActivity</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_geo_code_test">GeoCodeTest</string>
 </resources>

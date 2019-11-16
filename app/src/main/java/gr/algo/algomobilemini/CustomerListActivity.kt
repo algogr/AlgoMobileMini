@@ -8,11 +8,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.SearchView
-import android.widget.TextView
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_customer_list.*
+import kotlinx.android.synthetic.main.content_upload_db.*
+import kotlinx.android.synthetic.main.customerlist_item.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -128,6 +127,7 @@ class CustomerListActivity : AppCompatActivity() {
             if (convertView==null){
                 view= layoutInflater.inflate(R.layout.customerlist_item,parent,false)
                 holder= ViewHolder(view)
+                //holder.button=convertView!!.findViewById<ImageButton>(R.id.buttonMaps) as ImageButton
                 view.tag=holder
 
             }
@@ -148,9 +148,11 @@ class CustomerListActivity : AppCompatActivity() {
             holder.vatStatusId=CustomerList!![position].vatstatusid
             holder.balance=CustomerList!![position].balance
             holder.customer=CustomerList!![position]
-            Log.d("JIM_CUSTOMER",holder.customer.toString())
-
-
+            /*
+            holder.button!!.setOnClickListener{
+                Log.d("JIM","PRESSED")
+            }
+*/
 
             return view
         }
@@ -238,11 +240,12 @@ class CustomerListActivity : AppCompatActivity() {
         var vatStatusId:Int
         var balance:Float
         var customer:Customer
+        //var button:ImageButton
 
         init{
 
             this.textView=view?.findViewById<TextView>(R.id.textView3) as TextView
-
+            //this.button=view?.findViewById<ImageButton>(R.id.buttonMaps) as ImageButton
             this.position=-1
             this.cusId=-1
             this.title=""
@@ -252,6 +255,9 @@ class CustomerListActivity : AppCompatActivity() {
             this.vatStatusId=-1
             this.balance=0.00f
             this.customer=Customer()
+
+
+
 
 
             view.setOnClickListener { v: View  ->
@@ -276,6 +282,7 @@ class CustomerListActivity : AppCompatActivity() {
                     i.putExtra("city", city)
                     i.putExtra("vatstatusid", vatStatusId)
                     i.putExtra("balance",balance)
+                    i.putExtra("routeid",routeId)
                 }
                 else
                 {

@@ -58,8 +58,16 @@ class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
                     }
 
                     3->{
-                        val i = Intent(v.context,Settings::class.java)
-                        v.context.startActivity(i)
+                        //val i = Intent(v.context,Settings::class.java)
+                        //v.context.startActivity(i)
+                        val bt=BTPrint()
+                        bt.findCustomBt()
+                        //bt.openCustomBT()
+
+                        //bt.invoicePlainData()
+                        bt.closeBT()
+                        //sendData()
+                        // closeBT()
                     }
 
                     4->{

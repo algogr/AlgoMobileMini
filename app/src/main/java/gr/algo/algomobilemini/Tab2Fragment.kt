@@ -12,10 +12,6 @@ import android.widget.ListView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_tab2.*
 import kotlinx.android.synthetic.main.fragment_tab2.view.*
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket;
-import android.support.v4.app.ActivityCompat.startActivityForResult
-import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Handler
 import android.util.Log
@@ -54,17 +50,6 @@ class Tab2Fragment : Fragment() {
     var discardListener:OnDiscardListener?=null
 
 
-    lateinit var mBluetoothAdapter: BluetoothAdapter
-    lateinit var mmSocket: BluetoothSocket
-    lateinit var mmDevice: BluetoothDevice
-    lateinit var mmOutputStream: OutputStream
-    lateinit var mmInputStream: InputStream
-    lateinit var workerThread: Thread
-
-    lateinit var readBuffer: ByteArray
-    var readBufferPosition:Int=0
-    @Volatile
-    var stopWorker:Boolean=false
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -302,177 +287,7 @@ class Tab2Fragment : Fragment() {
 
 
 
-    fun findBT()
-    {
-        try {
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-            if (mBluetoothAdapter == null) {
-                TODO()
-                //myLabel.setText("No bluetooth adapter available")
-            }
-
-            if (!mBluetoothAdapter.isEnabled()) {
-                val enableBluetooth = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                startActivityForResult(enableBluetooth, 0)
-            }
-
-            val pairedDevices = mBluetoothAdapter.getBondedDevices()
-
-            if (pairedDevices.size > 0) {
-                for (device in pairedDevices) {
-
-                    // RPP300 is the name of the bluetooth printer device
-                    // we got this name from the list of paired devices
-                    if (device.getName() == "imz2200") {
-                        mmDevice = device
-                        break
-                    }
-                }
-            }
-
-            Log.d("JIM","Bluetooth Device Foung")
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
-
-    @Throws(IOException::class)
-    fun openBT() {
-        try {
-
-            // Standard SerialPortService ID
-            val uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
-
-            mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid)
-            mmSocket.connect()
-            mmOutputStream = mmSocket.getOutputStream()
-            mmInputStream = mmSocket.getInputStream()
-
-            beginListenForData()
-
-            Log.d("JIM","Bluetooth Opened")
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
-
-
-    fun beginListenForData() {
-        try {
-            val handler = Handler()
-
-            // this is the ASCII code for a newline character
-            val delimiter: Byte = 10
-
-            stopWorker = false
-            readBufferPosition = 0
-            readBuffer = ByteArray(1024)
-
-            workerThread = Thread(Runnable {
-                while (!Thread.currentThread().isInterrupted && !stopWorker) {
-
-                    try {
-
-                        val bytesAvailable = mmInputStream.available()
-
-                        if (bytesAvailable > 0) {
-
-                            val packetBytes = ByteArray(bytesAvailable)
-                            mmInputStream.read(packetBytes)
-
-                            for (i in 0 until bytesAvailable) {
-
-                                val b = packetBytes[i]
-                                if (b == delimiter) {
-
-                                    val encodedBytes = ByteArray(readBufferPosition)
-                                    System.arraycopy(
-                                            readBuffer, 0,
-                                            encodedBytes, 0,
-                                            encodedBytes.size
-                                    )
-
-                                    // specify US-ASCII encoding
-                                    val data = String(encodedBytes, Charset.forName("UTF-8"))
-                                    readBufferPosition = 0
-
-                                    // tell the user data were sent to bluetooth printer device
-                                    Log.d("JIM",data)
-                                    //handler.post(Runnable { myLabel.setText(data) })
-
-                                } else {
-                                    readBuffer[readBufferPosition++] = b
-                                }
-                            }
-                        }
-
-                    } catch (ex: IOException) {
-                        stopWorker = true
-                    }
-
-                }
-            })
-
-            workerThread.start()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
-
-
-    @Throws(IOException::class)
-    fun sendData() {
-        try {
-
-            format("! U1 setvar \"device.languages\" \"zpl\"");
-            format("^XA");
-            format("^MMC,Y");
-            format("^MNN^LL1200");
-            //format("^CWT,E:TT0003M_.TTF");
-            format("^CFT,30,30");
-            format("^FO175,100^CI28^ATN,36,20^FH^FD GUY DEBORD ^FS");
-            format("^FS");
-            format("^XZ");
-
-            Log.d("JIM","SEND")
-
-
-
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
-
-    fun format(message:String){
-        val msg=message.plus("\n")
-        //msg += "\n"
-        mmOutputStream.write(msg.toByteArray())
-
-    }
-
-
-    @Throws(IOException::class)
-    fun closeBT() {
-        try {
-            stopWorker = true
-            mmOutputStream.close()
-            mmInputStream.close()
-            mmSocket.close()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
 
 
 }

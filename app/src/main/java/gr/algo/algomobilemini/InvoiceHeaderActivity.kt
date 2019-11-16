@@ -1,6 +1,8 @@
 package gr.algo.algomobilemini
 
 import android.content.Intent
+import android.location.Address
+import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -12,6 +14,7 @@ import android.widget.TextView
 
 import kotlinx.android.synthetic.main.activity_invoice_header.*
 import kotlinx.android.synthetic.main.content_invoice_header.*
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -21,6 +24,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
 
     var cusId:Int=-1
     var vatStatusId=-1
+    var routeId:Int=-1
 
     var ftrDate={
         val answer:String
@@ -44,8 +48,9 @@ class InvoiceHeaderActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val i= Intent(this,RouteActivity::class.java)
 
+        val i= Intent(this,CustomerListActivity::class.java)
+        i.putExtra("routeid",routeId)
         startActivity(i)
     }
 
@@ -63,6 +68,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         val address:String?=extras.getString("address")
         val city:String?=extras.getString("city")
         this.cusId=extras.getInt("cusid")
+        this.routeId=extras.getInt("routeid")
         val balance=extras.getFloat("balance")
 
         this.vatStatusId=extras.getInt("vatstatusid")
@@ -84,6 +90,36 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         balanceTextView.setText("ΥΠOΛΟΙΠΟ:"+balance.toString())
 
         ftrdateText.setText(ftrDate())
+
+
+        mapButton.setOnClickListener{
+
+            var latitude: Double=0.00
+            var longitude: Double=0.00
+
+            var geocodeMatches: List<Address>? = null
+
+            try {
+                geocodeMatches = Geocoder(this).getFromLocationName(
+                        address+" "+city, 1)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            if (geocodeMatches != null) {
+                latitude = geocodeMatches[0].latitude
+                longitude = geocodeMatches[0].longitude
+
+            }
+
+
+            val i=Intent(it.context,MapsActivity::class.java)
+            i.putExtra("latitude",latitude)
+            i.putExtra("longitude",longitude)
+            i.putExtra("place",address+" "+city)
+            i.putExtra("routeid",routeId)
+            startActivity(i)
+        }
 
 
 

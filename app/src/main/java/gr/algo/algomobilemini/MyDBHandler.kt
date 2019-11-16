@@ -726,25 +726,22 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun insertInvoice(findoc:FinDoc,isUpdate:Boolean):Int{
         var query="SELECT lastno FROM docseries WHERE codeid='"+findoc.dsrId.toString()+"'"
+        Log.d("JIM",query)
         val db=this.writableDatabase
         var cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
-        val lastno= {
-            var no = cursor.getInt(0)
-            if (isUpdate) no else no+=1
-            no
-        }
-                cursor.getInt(0)
+        val lastno=  if(isUpdate)cursor.getInt(0) else cursor.getInt(0)+1
+
         query="SELECT erpid FROM customer WHERE id="+findoc.cusId
         Log.d("JIM",query)
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
-        var cusErpId=cursor.getInt(0)
+        var cusErpId=if (isUpdate) findoc.cusId else cursor.getInt(0)
         if (cusErpId==0) cusErpId=findoc.cusId
 
 
        query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash) VALUES " +
-                "(date('now'),"+findoc.dsrId.toString()+","+(lastno()).toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
+                "(date('now'),"+findoc.dsrId.toString()+","+lastno.toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
                 "',"+findoc.erpUpd.toString()+","+findoc.netValue.toString()+","+ findoc.vatAmount.toString()+
                 ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+")"
         Log.d("JIM",query)
@@ -754,7 +751,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val ftrid=cursor.getInt(0)
-        query="UPDATE docseries SET lastno="+(lastno()).toString()+" where codeid="+findoc.dsrId.toString()
+        query="UPDATE docseries SET lastno="+lastno.toString()+" where codeid="+findoc.dsrId.toString()
         Log.d("JIM",query)
         db.execSQL(query)
         if(findoc.isCash==0) {

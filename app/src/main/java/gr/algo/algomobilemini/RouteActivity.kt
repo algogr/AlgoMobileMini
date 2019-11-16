@@ -92,7 +92,6 @@ class RouteActivity : AppCompatActivity() {
             holder.position=position
             holder.textView.text=routeList!![position].description
             holder.routeId=routeList!![position].erpId
-            Log.d("JIM-ROUTEID0","v")
             return view
         }
 
