@@ -33,8 +33,7 @@ class GeoCodeTest : AppCompatActivity() {
             if (geocodeMatches != null) {
                 latitude = geocodeMatches[0].latitude
                 longitude = geocodeMatches[0].longitude
-                Log.d("JIM-lat",latitude.toString())
-                Log.d("JIM-long",longitude.toString())
+
             }
         }
     }

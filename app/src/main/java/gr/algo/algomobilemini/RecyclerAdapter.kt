@@ -2,7 +2,9 @@ package gr.algo.algomobilemini
 
 
 
+import android.content.Context
 import android.content.Intent
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
@@ -14,7 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.card_layout.view.*
 
-class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+class RecyclerAdapter(val context:Context) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
     private val titles = arrayOf("Τιμολόγηση",
             "Ταμείο", "Αναφορές", "Εργαλεία Διαχείρισης",
@@ -58,16 +60,39 @@ class RecyclerAdapter : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
                     }
 
                     3->{
-                        //val i = Intent(v.context,Settings::class.java)
-                        //v.context.startActivity(i)
-                        val bt=BTPrint()
-                        bt.findCustomBt()
-                        //bt.openCustomBT()
 
-                        //bt.invoicePlainData()
-                        bt.closeBT()
-                        //sendData()
-                        // closeBT()
+
+
+                        //val i = Intent(v.context,BluetoothBixolonActivity::class.java)
+                        val i = Intent(v.context,Settings::class.java)
+                        v.context.startActivity(i)
+
+/*
+
+                        val bt=BTPrinterBixolon(context)
+
+                        val handler = MyDBHandler(context = context, version = 1, name = null, factory = null)
+                        val company=handler.getCompanyData()
+                        bt.connect(company,bt::invoice)
+
+ */
+                        /*
+                        Handler().postDelayed(Runnable {
+                            bt.printCharsets()
+                        }, 3000)
+*/
+                        //bt.printCharsets()
+
+
+
+
+
+
+
+
+
+
+
                     }
 
                     4->{

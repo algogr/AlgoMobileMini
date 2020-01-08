@@ -148,11 +148,7 @@ class CustomerListActivity : AppCompatActivity() {
             holder.vatStatusId=CustomerList!![position].vatstatusid
             holder.balance=CustomerList!![position].balance
             holder.customer=CustomerList!![position]
-            /*
-            holder.button!!.setOnClickListener{
-                Log.d("JIM","PRESSED")
-            }
-*/
+
 
             return view
         }
@@ -272,27 +268,19 @@ class CustomerListActivity : AppCompatActivity() {
                     }
                 }
                 */
-                val i:Intent
-                if(mode==0) {
+                var i:Intent=Intent()
+                val bundle=Bundle()
+                if(mode==0)
                     i = Intent(v.context, InvoiceHeaderActivity::class.java)
-                    i.putExtra("cusid", cusId)
-                    i.putExtra("name", name)
-                    i.putExtra("title", title)
-                    i.putExtra("address", address)
-                    i.putExtra("city", city)
-                    i.putExtra("vatstatusid", vatStatusId)
-                    i.putExtra("balance",balance)
-                    i.putExtra("routeid",routeId)
-                }
-                else
-                {
-                    i = Intent(v.context, CollectionActivity::class.java)
-                    val bundle=Bundle()
-                    Log.d("JIM-CUSTOMER2",customer.toString())
-                    bundle.putSerializable("customer",customer)
-                    i.putExtras(bundle)
-                }
 
+                else
+                    i = Intent(v.context, CollectionActivity::class.java)
+
+
+
+
+                bundle.putSerializable("customer",customer)
+                i.putExtras(bundle)
 
 
 

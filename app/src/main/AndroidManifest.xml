@@ -22,6 +22,11 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
+                android:name=".CashMainReport"
+                android:label="@string/title_activity_cash_main_report"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
                 android:name=".GeoCodeTest"
                 android:label="@string/title_activity_geo_code_test"
                 android:theme="@style/AppTheme.NoActionBar">
@@ -41,6 +46,10 @@
         <activity
                 android:name=".MapsActivity"
                 android:label="@string/title_activity_maps">
+        </activity>
+        <activity
+                android:name=".BluetoothBixolonActivity"
+                android:label="BluetoothBixolonActivity">
         </activity>
         <activity
                 android:name=".CashOpenActivity"

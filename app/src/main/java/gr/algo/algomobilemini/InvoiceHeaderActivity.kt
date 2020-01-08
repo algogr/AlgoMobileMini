@@ -3,14 +3,13 @@ package gr.algo.algomobilemini
 import android.content.Intent
 import android.location.Address
 import android.location.Geocoder
+import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 
 import kotlinx.android.synthetic.main.activity_invoice_header.*
 import kotlinx.android.synthetic.main.content_invoice_header.*
@@ -22,9 +21,14 @@ import java.util.*
 
 class InvoiceHeaderActivity : AppCompatActivity() {
 
-    var cusId:Int=-1
-    var vatStatusId=-1
-    var routeId:Int=-1
+    //TODO("CHECK ID DDE THIRD IS GIVEN")
+    //TODO("CHECK ID DDE IF THIRD AND CUSTOMER IS GIVEN")
+    var mCustomer:Customer=Customer()
+    var mThird:Customer?= null
+    var mSubsidiary:Subsidiary?= null
+    var subs:MutableList<Subsidiary>?= mutableListOf<Subsidiary>()
+    var thirds=mutableListOf<Customer>()
+
 
     var ftrDate={
         val answer:String
@@ -50,7 +54,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         super.onBackPressed()
 
         val i= Intent(this,CustomerListActivity::class.java)
-        i.putExtra("routeid",routeId)
+        i.putExtra("routeid",mCustomer.routeid)
         startActivity(i)
     }
 
@@ -62,34 +66,81 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         setContentView(R.layout.activity_invoice_header)
         setSupportActionBar(toolbar)
         setTitle("Στοιχεία Τιμολογίου")
-        val extras=intent.extras
-        val name:String= extras.getString("name")
-        val title:String?=extras.getString("title")
-        val address:String?=extras.getString("address")
-        val city:String?=extras.getString("city")
-        this.cusId=extras.getInt("cusid")
-        this.routeId=extras.getInt("routeid")
-        val balance=extras.getFloat("balance")
 
-        this.vatStatusId=extras.getInt("vatstatusid")
+        subSpinner.visibility=View.GONE
+        thirdSpinner.visibility=View.GONE
 
 
 
-        val nameText=findViewById<TextView>(R.id.nameTextView) as TextView
-        val titleText=findViewById<TextView>(R.id.titleTextView) as TextView
-        val addressText=findViewById<TextView>(R.id.addressTextView) as TextView
-        val cityText=findViewById<TextView>(R.id.cityTextView) as TextView
-        val ftrdateText=findViewById<TextView>(R.id.ftrdateTextView) as TextView
+        val bundle = intent.extras
+        mCustomer = bundle.getSerializable("customer") as Customer
 
 
 
-        nameText.setText(name)
-        titleText.setText(title)
-        addressText.setText(address)
-        cityText.setText(city)
-        balanceTextView.setText("ΥΠOΛΟΙΠΟ:"+balance.toString())
+        val handler=MyDBHandler(context = this.baseContext,version = 1,name=null,factory = null)
+        subs=handler.getCustomerSubs(mCustomer.id)
+        if (!subs!!.isEmpty()) {
+            var subsDescr = Array(subs!!.size){""}
 
-        ftrdateText.setText(ftrDate())
+            for (j in 0..subs!!.size-1) {
+                subsDescr[j]=subs!![j].descr
+            }
+            val adapter = ArrayAdapter(
+                    this, // Context
+                    android.R.layout.simple_spinner_item,
+                    subsDescr
+            )
+            subSpinner.adapter = adapter
+            if (subsDescr.size > 0) subSpinner.visibility = View.VISIBLE
+
+        }
+
+
+
+
+
+
+
+        nameTextView.setText(mCustomer.name)
+        titleTextView.setText(mCustomer.title)
+        addressTextView.setText(mCustomer.address)
+        cityTextView.setText(mCustomer.city)
+        balanceTextView.setText("ΥΠOΛΟΙΠΟ:${mCustomer.balance}")
+
+        ftrdateTextView.setText(ftrDate())
+
+        radioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+            if (checkedId==R.id.ddeRadioButton)
+            {
+                thirdSpinner.visibility=View.VISIBLE
+                thirds=handler.getThirdCustomers()
+                if (!thirds.isEmpty()) {
+                    var thirdsDescr = Array(thirds!!.size){""}
+
+                    for (j in 0..thirds!!.size-1) {
+                        thirdsDescr[j]=thirds!![j].name
+
+
+
+                    }
+                    val adapter = ArrayAdapter(
+                            this, // Context
+                            android.R.layout.simple_spinner_item,
+                            thirdsDescr
+                    )
+
+                    thirdSpinner.adapter = adapter
+                    if (thirdsDescr.size > 0) thirdSpinner.visibility = View.VISIBLE
+
+                }
+
+
+            }
+            else
+            {
+                thirdSpinner.visibility=View.GONE
+            }
+        })
 
 
         mapButton.setOnClickListener{
@@ -101,7 +152,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
 
             try {
                 geocodeMatches = Geocoder(this).getFromLocationName(
-                        address+" "+city, 1)
+                        mCustomer.address+" "+mCustomer.city, 1)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -116,8 +167,8 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             val i=Intent(it.context,MapsActivity::class.java)
             i.putExtra("latitude",latitude)
             i.putExtra("longitude",longitude)
-            i.putExtra("place",address+" "+city)
-            i.putExtra("routeid",routeId)
+            i.putExtra("place",mCustomer.address+" "+mCustomer.city)
+            i.putExtra("routeid",mCustomer.routeid)
             startActivity(i)
         }
 
@@ -127,7 +178,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             view->
             val i=Intent(view.context,CustomerActivity::class.java)
             i.putExtra("mode",1)
-            i.putExtra("cusid",this.cusId)
+            i.putExtra("cusid",mCustomer.id)
             startActivity(i)
         }
 
@@ -144,6 +195,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             val dsrde=findViewById<RadioButton>(R.id.deRadioButton)
             val dsrpist=findViewById<RadioButton>(R.id.pistRadioButton)
             val dsrorder=findViewById<RadioButton>(R.id.orderRadioButton)
+            val dsrdde=findViewById<RadioButton>(R.id.ddeRadioButton)
             val dsrtype:()->Int={
                 var type:Int=-1
                 if (dsrtda.isChecked){type=1}
@@ -151,18 +203,41 @@ class InvoiceHeaderActivity : AppCompatActivity() {
                 if (dsrda.isChecked){type=3}
                 if (dsrde.isChecked){type=4}
                 if (dsrorder.isChecked){type=5}
+                if (dsrdde.isChecked){type=6}
                 type
 
             }
+            val handler=MyDBHandler(context = this.baseContext,version = 1,name=null,factory = null)
+            val docSeries=handler.getDocSeriesDetails(dsrtype().toString())
+
+            if (subSpinner.visibility==View.VISIBLE)
+                mSubsidiary = subs!![subSpinner.selectedItemPosition]
+
+
+
+
+            if (thirdSpinner.visibility==View.VISIBLE)
+                 mThird=thirds!![thirdSpinner.selectedItemPosition]
+
+
+
+
+
             val i= Intent(view.context,InvoiceActivity::class.java)
             i.putExtra("ftrdate",findViewById<TextView>(R.id.ftrdateTextView).text)
-            i.putExtra("cusid",cusId)
             i.putExtra("dsrtype",dsrtype())
-            i.putExtra("vatstatusid",vatStatusId)
             i.putExtra("deliveryaddress",deliveryeditText.text.toString())
             i.putExtra("iscash",if (cashcheckBox.isChecked()) 1 else 0 )
             i.putExtra("comments",commentEditText.text.toString())
+            i.putExtra("mode",0)
+            val bundle=Bundle()
+            bundle.putSerializable("customer",mCustomer)
+            bundle.putSerializable("docseries",docSeries)
+            if (mSubsidiary!=null) bundle.putSerializable("subsidiary",mSubsidiary)
+            Log.d("JIM-BEFTHIRD",mThird?.erpid.toString())
+            if (mThird!=null) bundle.putSerializable("third",mThird)
 
+            if (!bundle.isEmpty()) i.putExtras(bundle)
             startActivity(i)
 
         }

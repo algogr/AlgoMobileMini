@@ -13,6 +13,11 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_line_item.*
 import kotlinx.android.synthetic.main.fragment_line_item.view.*
+import java.lang.Exception
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 
 
 class lineItem : Fragment() {
@@ -24,6 +29,7 @@ class lineItem : Fragment() {
     var firstQty:Float?=0.00f
     var price:Float?=0.00f
     var discount:Float?=0.00f
+    var secDiscount:Float?=0.00f
     var netValue:Float?=0.00f
     var vatValue:Float?=0.00f
     var vatStatus:Int?=-1
@@ -59,6 +65,7 @@ class lineItem : Fragment() {
         val qt = view.firstQtyEdit
         val pr=view.priceEdit
         val di=view.discountEdit
+        val sdi=view.discount2Edit
         val nvl=view.netValueTextView
         val vatv=view.vatValueTextView
         vatStatus=arguments?.getInt("vatstatus")
@@ -96,6 +103,15 @@ class lineItem : Fragment() {
             //}
         }
 
+        sdi.setOnFocusChangeListener { v, hasFocus ->
+            //if(!hasFocus)
+            //{
+
+            nvl.setText(calculateNV(view))
+            vatv.setText(calculateVat(view))
+            //}
+        }
+
 
 
 
@@ -128,16 +144,22 @@ class lineItem : Fragment() {
 
 
             val price=priceEdit.text.toString().toFloatOrNull()?:0.00f
-
+            Log.d("JIM-NREA",price.toString())
 
             val discount=discountEdit.text.toString().toFloatOrNull()?:0.00f
 
+            val secDiscount=discount2Edit.text.toString().toFloatOrNull()?:0.00f
+
             val netvalue=netValueTextView.text.toString().toFloatOrNull()?:0.00f
+
+            val vatvalue=vatValueTextView.text.toString().toFloatOrNull()?:0.00f
+
+
 
             if (firstqty>0) {
                 val finDocLine = FinDocLine(iteCode = code!!, iteDescription = description!!,
                         firstQty = firstqty, price = price,
-                        discount = discount, netValue = netvalue, vatValue = netvalue!!*vatprc!!/100, vtcID = vtcId!!, iteID = erpId!!)
+                        discount = discount, netValue = netvalue, vatValue = vatvalue, vtcID = vtcId!!, iteID = erpId!!,secDiscount = secDiscount,vatPercent = vatprc!!)
 
                 val tab1fragment: Fragment = Tab1Fragment()
                 acceptListener?.onAccept(finDocLine,position)
@@ -196,7 +218,7 @@ class lineItem : Fragment() {
         super.onStop()
         calculateVat(this.view!!)
         calculateNV(this.view!!)
-        Log.d("JIM","onStop")
+
 
     }
 
@@ -204,7 +226,7 @@ class lineItem : Fragment() {
         super.onPause()
         calculateVat(this.view!!)
         calculateNV(this.view!!)
-        Log.d("JIM","onPause")
+
     }
 
 
@@ -217,26 +239,58 @@ class lineItem : Fragment() {
         val q = view.firstQtyEdit
         val p=view.priceEdit
         val d=view.discountEdit
+        val sd=view.discount2Edit
         val qty=q.text?.toString()?.toFloatOrNull()?:0.00f
         val price=p.text?.toString()?.toFloatOrNull()?:0.00f
         val discount=d.text?.toString()?.toFloatOrNull()?:0.00f
-        val rv:Float=qty*price-(qty*price*discount/100)
-        view.netValueTextView.text=rv.toString()
-        return  rv.toString()
+        val secDiscount=sd.text?.toString()?.toFloatOrNull()?:0.00f
+        //Log.d("JIM-qty",qty.toString())
+        //Log.d("JIM-price",price.toString())
+        //Log.d("JIM-disc",discount.toString())
+        //Log.d("JIM-disc2",secDiscount.toString())
+
+        val rv:Float=qty*price-(qty*price*discount/100)-((qty*price-(qty*price*discount/100))*secDiscount/100)
+
+        view.netValueTextView.text=round2Decimals(rv).toString()
+
+        return  round2Decimals(rv).toString()
     }
 
     fun calculateVat(view: View):String{
         val q = view.firstQtyEdit
         val p=view.priceEdit
         val d=view.discountEdit
+        val sd=view.discount2Edit
         val qty=q.text?.toString()?.toFloatOrNull()?:0.00f
         val price=p.text?.toString()?.toFloatOrNull()?:0.00f
         val discount=d.text?.toString()?.toFloatOrNull()?:0.00f
-        val rv:Float=qty*price-(qty*price*discount/100)
+        val secDiscount=sd.text?.toString()?.toFloatOrNull()?:0.00f
+        val rv:Float=qty*price-(qty*price*discount/100)-((qty*price-(qty*price*discount/100))*secDiscount/100)
         val vatvalue=rv*vatprc!!/100
-        view.vatValueTextView.text=vatvalue.toString()
-        return  vatvalue.toString()
+        view.vatValueTextView.text=round2Decimals(vatvalue).toString()
+        return  round2Decimals(vatvalue).toString()
     }
+
+
+    fun round2Decimals(value:Float):String{
+        val symbols:DecimalFormatSymbols= DecimalFormatSymbols(Locale.US)
+        try {
+            val df = DecimalFormat("#.##",symbols)
+            df.roundingMode = RoundingMode.HALF_DOWN
+
+            return (df.format(value))
+        }
+        catch (e: Exception){
+            val df = DecimalFormat("#,##",symbols)
+            df.roundingMode = RoundingMode.HALF_DOWN
+
+            return (df.format(value))
+
+        }
+    }
+
+
+
 
 
 
@@ -255,13 +309,21 @@ class lineItem : Fragment() {
         vatStatus=arguments?.getInt("vatstatus")
         price=arguments?.getFloat("price")
         discount=arguments?.getFloat("discount")
+        secDiscount=arguments?.getFloat("secdiscount")
+
+
 
 
         val handler=MyDBHandler(context = this.context,version = 1,name=null,factory = null)
         vatprc=handler.getVatPercent(vtcId.toString(),vatStatus!!)
         val t= activity as InvoiceActivity
-        val tId=t.finDoc.cusId
-        val customerId=handler.getCustomerById(tId)?.erpid
+        val tId=t.finDoc.customer.id
+        val customerId:Int?
+        if (t.mode==0)
+            customerId=handler.getCustomerById(tId)?.erpid
+        else
+            customerId=tId
+
         val bundle:Bundle=handler.getStoreCustData(customerId,erpId!!)
         lastQty=bundle?.getFloat("lastqty")
         lastPrice=bundle?.getFloat("lastprice")
@@ -269,14 +331,24 @@ class lineItem : Fragment() {
         lastDate=bundle?.getString("lastdate")
 
 
+
+        val pbundle=handler.getPricing(erpId!!,customerId!!)
+
+        price=pbundle?.getFloat("price")?:price
+        discount=pbundle?.getFloat("discount")?:discount
+        secDiscount=pbundle?.getFloat("secdiscount")?:secDiscount
+
+
         textCode?.setText(code)
         textDescr?.setText(description)
         vatPrcTextView.setText(vatprc.toString())
         priceEdit.text=SpannableStringBuilder(price.toString())
         discountEdit.text=SpannableStringBuilder(discount.toString())
+        discount2Edit.text=SpannableStringBuilder(secDiscount.toString())
         textView7.text="Ποσότητα:("+lastQty+")"
         textView8.text="Τιμή:("+lastPrice+")"
         textView9.text="Εκπτωση%:("+lastDiscount+")"
+
 
 
 
@@ -286,12 +358,14 @@ class lineItem : Fragment() {
             firstQty=arguments?.getFloat("firstQty")
             price=arguments?.getFloat("price")
             discount=arguments?.getFloat("discount")
+            secDiscount=arguments?.getFloat("secdiscount")
             netValue=arguments?.getFloat("netValue")
             vatValue=arguments?.getFloat("vatValue")
 
             firstQtyEdit.text=SpannableStringBuilder(firstQty.toString())
             priceEdit.text=SpannableStringBuilder(price.toString())
             discountEdit.text=SpannableStringBuilder(discount.toString())
+            discount2Edit.text=SpannableStringBuilder(secDiscount.toString())
             netValueTextView.text=netValue.toString()
             vatValueTextView.text=vatValue.toString()
             //vatPrcTextView.text=vatprc.toString()

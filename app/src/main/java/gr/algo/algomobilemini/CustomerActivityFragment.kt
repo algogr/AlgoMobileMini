@@ -39,7 +39,7 @@ class CustomerActivityFragment : Fragment() {
         val myHandler=MyDBHandler(context = this.context,version = 1,name=null,factory = null)
         cusId=activity.intent.extras?.getInt("cusid")
         routeid=activity.intent.extras?.getInt("routeid")
-        Log.d("JIM-ROUTEID1",routeid.toString())
+
         if (cusId!!>0)
         {
             val customer=myHandler.getCustomerById(cusId!!)
@@ -67,7 +67,7 @@ class CustomerActivityFragment : Fragment() {
         {
 
             if(arguments?.getInt("mode")==1) {
-                Log.d("JIM","ELSE")
+
                 editName.text = SpannableStringBuilder(arguments?.getString("cusname"))
                 editAddress.text = SpannableStringBuilder(arguments?.getString("address"))
                 editDistrict.text = SpannableStringBuilder(arguments?.getString("district"))

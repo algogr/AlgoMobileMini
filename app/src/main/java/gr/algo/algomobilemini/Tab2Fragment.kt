@@ -22,8 +22,10 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.*
 import java.lang.Compiler.command
-
-
+import java.lang.Exception
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -44,10 +46,14 @@ class Tab2Fragment : Fragment() {
     var sumVat:Float=0.00f
     var totalAmount:Float=0.00f
     var vatStatus:Int=-1
+    var totalPrQty:Float=0.00f
+    var totalSecQty:Float=0.00f
     private  var itemFragment=lineItem()
 
     var insertListener:OnInsertListener?=null
     var discardListener:OnDiscardListener?=null
+    var printListener:OnPrintListener?=null
+
 
 
 
@@ -65,16 +71,20 @@ class Tab2Fragment : Fragment() {
         view.sumNValueTextView.text=sumNV.toString()
         view.sumVATTextView.text=sumVat.toString()
         view.sumTotalAmountTextView.text=totalAmount.toString()
-
+        view.acceptButton2.isEnabled=false
         view.acceptButton2.setOnClickListener { v:View->
             insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumVATTextView.text.toString().toFloat(),
-                    view.sumTotalAmountTextView.text.toString().toFloat())
-            //TODO("ACTIVATE BLUETOOTH")
-            //findBT()
-            //openBT()
-            //sendData()
-           // closeBT()
+                    view.sumTotalAmountTextView.text.toString().toFloat(),totalPrQty,totalSecQty)
 
+
+
+
+        }
+
+        view.printerButton.setOnClickListener{v:View->
+
+
+            printListener?.onPrint(context)
 
 
         }
@@ -89,6 +99,7 @@ class Tab2Fragment : Fragment() {
 
 
 
+
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
 
@@ -99,18 +110,25 @@ class Tab2Fragment : Fragment() {
         selectedItemsListAdapter.notifyDataSetChanged()
         var netValue=0f
         var vat=0f
+        var firstQty=0f
+        var secQty=0f
+
 
         for (findocline in finDocLines)
         {
             netValue+=findocline.netValue
             vat+=findocline.vatValue
+            firstQty+=findocline.firstQty
+            secQty+=findocline.secQty
 
 
         }
 
-        sumVat=vat
-        sumNV=netValue
-        totalAmount=netValue+vat
+        sumVat=round2Decimals(vat).toFloat()
+        sumNV=round2Decimals(netValue).toFloat()
+        totalAmount=round2Decimals(sumVat+sumNV).toFloat()
+        totalPrQty=round2Decimals(firstQty).toFloat()
+        totalSecQty=round2Decimals(secQty).toFloat()
         view?.sumNValueTextView?.text=sumNV.toString()
         view?.sumVATTextView?.text=sumVat.toString()
         view?.sumTotalAmountTextView?.text=totalAmount.toString()
@@ -118,6 +136,24 @@ class Tab2Fragment : Fragment() {
 
     }
 
+
+
+    fun round2Decimals(value:Float):String{
+        val symbols: DecimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+        try {
+            val df = DecimalFormat("#.##",symbols)
+            df.roundingMode = RoundingMode.HALF_DOWN
+
+            return (df.format(value))
+        }
+        catch (e: Exception){
+            val df = DecimalFormat("#,##",symbols)
+            df.roundingMode = RoundingMode.HALF_DOWN
+
+            return (df.format(value))
+
+        }
+    }
 
 
     inner class FinDocLinesAdapter:BaseAdapter{
@@ -162,7 +198,8 @@ class Tab2Fragment : Fragment() {
             holder.firstQty.text=finDocLinesList!![position].firstQty.toString()
             holder.price.text=finDocLinesList!![position].price.toString()
             holder.discount.text=finDocLinesList!![position].discount.toString()
-            holder.vtcid.text=finDocLinesList!![position].vtcID.toString()
+            holder.secDiscount.text=finDocLinesList!![position].secDiscount.toString()
+            holder.vtcid.text=finDocLinesList!![position].vatValue.toString()
             holder.netValue.text=finDocLinesList!![position].netValue.toString()
 
 
@@ -200,6 +237,7 @@ class Tab2Fragment : Fragment() {
         var firstQty:TextView
         var price:TextView
         var discount:TextView
+        var secDiscount:TextView
         var vtcid:TextView
         var netValue:TextView
         //var vatAmount:TextView
@@ -217,6 +255,7 @@ class Tab2Fragment : Fragment() {
             this.firstQty=view?.findViewById<TextView>(R.id.firstQtyTextView) as TextView
             this.price=view?.findViewById<TextView>(R.id.priceTextView) as TextView
             this.discount=view?.findViewById<TextView>(R.id.discountTextView) as TextView
+            this.secDiscount=view?.findViewById<TextView>(R.id.discount2TextView) as TextView
             this.vtcid=view?.findViewById<TextView>(R.id.vatTextView) as TextView
             this.netValue=view?.findViewById<TextView>(R.id.netValueTextView) as TextView
             //val vat=this.netValue.toString().toFloat()*vtcid/100
@@ -238,6 +277,7 @@ class Tab2Fragment : Fragment() {
                 args.putFloat("firstQty",finDocLines!![position].firstQty)
                 args.putFloat("price",finDocLines!![position].price)
                 args.putFloat("discount",finDocLines!![position].discount)
+                args.putFloat("secdiscount",finDocLines!![position].secDiscount)
                 args.putFloat("netValue",finDocLines!![position].netValue)
                 args.putFloat("vatValue",finDocLines!![position].vatValue)
                 args.putInt("vatstatus",vatStatus)
@@ -273,11 +313,22 @@ class Tab2Fragment : Fragment() {
         this.discardListener=listener
     }
 
+    fun setOnPrintListener(listener: OnPrintListener){
+        this.printListener=listener
+    }
+
     interface OnInsertListener{
 
-        fun onInsert(netValue: Float, vatValue: Float, totalValue: Float):Unit
+        fun onInsert(netValue: Float, vatValue: Float, totalValue: Float, totalFirstQty:Float,totalSecQty:Float):Unit
 
     }
+
+    interface OnPrintListener{
+
+        fun onPrint(context: Context):Unit
+
+    }
+
 
     interface OnDiscardListener{
 

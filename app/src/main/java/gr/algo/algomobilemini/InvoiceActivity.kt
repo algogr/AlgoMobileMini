@@ -1,7 +1,11 @@
 package gr.algo.algomobilemini
+//----------WHEN IS THIRD HE BECOMES CUSTOMER AND SUBSIDIARY BECOMES NULL AND THE REAL CUSTOMER BECOMES SHTPTOPERID AND IT'S SUBSIDIARY SHPTOADDID----------
+
+
 
 //import android.app.Fragment
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
@@ -12,22 +16,26 @@ import android.support.v4.app.FragmentActivity
 import android.util.Log
 
 import kotlinx.android.synthetic.main.activity_invoice.*
+import kotlinx.android.synthetic.main.fragment_tab2.*
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
 class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
-        lineItem.OnAcceptListener,lineItem.OnDeleteListener,Tab2Fragment.OnInsertListener,Tab2Fragment.OnDiscardListener {
+        lineItem.OnAcceptListener,lineItem.OnDeleteListener,Tab2Fragment.OnInsertListener,Tab2Fragment.OnDiscardListener,Tab2Fragment.OnPrintListener {
 
     var finDoc:FinDoc
     var finDocLines= mutableListOf<FinDocLine>()
     var selectedItemId:Int=-1
     var basket: Tab2Fragment= Tab2Fragment()
     var mode:Int=0
+    var customer:Customer?=null
+    var hasChanged:Boolean=false
 
     init {
         this.finDoc=FinDoc(ftrdate = nowToString() )
+
         basket.finDocLines=finDocLines
 
     }
@@ -42,14 +50,14 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         var answer:String
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val current = LocalDateTime.now()
-            //val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm:ss")
+
             val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy.")
             answer =  current.format(formatter)
             Log.d("answer",answer)
 
         } else {
             var date = Date();
-            //val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+
             val formatter = SimpleDateFormat("MMM dd yyyy")
             answer = formatter.format(date)
             Log.d("answer",answer)
@@ -76,12 +84,17 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
             finDocLines!![position].firstQty=finDocLine.firstQty
             finDocLines!![position].price=finDocLine.price
             finDocLines!![position].discount=finDocLine.discount
+            finDocLines!![position].secDiscount=finDocLine.secDiscount
             finDocLines!![position].netValue=finDocLine.netValue
             finDocLines!![position].vatValue=finDocLine.vatValue
 
 
         }
-        Log.d("JIM","1")
+        hasChanged=true
+        basket.acceptButton2.isEnabled=true
+
+        basket.printerButton.isEnabled=false
+
         basket.notifyChanges()
 
     }
@@ -89,23 +102,37 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
     override  fun onDelete(position: Int){
 
-        Log.d("JIM","2")
+        hasChanged=true
+        basket.printerButton.isEnabled=false
+        basket.acceptButton2.isEnabled=true
         basket.notifyChanges()
     }
 
 
-    override fun onInsert(netValue: Float, vatValue: Float, totalValue: Float) {
+    override fun onInsert(netValue: Float, vatValue: Float, totalValue: Float,totFirstQty:Float,totSecQty:Float) {
 
         val builder = AlertDialog.Builder(basket.context)
+
+
+        val ft:()->Unit={
+                onPrint(basket.context)
+                finDocLines.clear()
+                val i = Intent(this.baseContext,if (mode==0) RouteActivity::class.java else InvoiceListActivity::class.java)
+                this.baseContext.startActivity(i)
+
+        }
+
         builder.setTitle("Επιβεβαίωση καταχώρησης")
-        builder.setMessage("Το παραστατικοό θα καταχωρηθεί!! Επιβεβαίωση!") // add the buttons
-        builder.setPositiveButton("Καταχώρηση", DialogInterface.OnClickListener { dialog, id ->
+        builder.setMessage("Nα  καταχωρηθεί το παραστατικό;") // add the buttons
+        builder.setPositiveButton("Ναι", DialogInterface.OnClickListener { dialog, id ->
             finDoc.netValue = netValue
             finDoc.vatAmount = vatValue
             finDoc.totAmount = totalValue
+            finDoc.totFirstQty=totFirstQty
+            finDoc.totSecQty=totSecQty
             var isUpdate=false
             val handler = MyDBHandler(context = this.baseContext, version = 1, name = null, factory = null)
-            Log.d("JIM-MODE",mode.toString())
+
             if (mode == 1)
             {
                 var query="delete from storetradelines where ftrid=" + finDoc.id.toString()
@@ -115,16 +142,35 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
                 isUpdate=true
             }
 
+
+            if (finDoc.third!=null) {
+                finDoc.customer = finDoc.third!!
+                finDoc.subsidiary = null
+            }
+
             val ftrid=handler.insertInvoice(finDoc,isUpdate)
             handler.insertLines(ftrid,finDocLines)
-            finDocLines.clear()
-            val i = Intent(this.baseContext,if (mode==0) RouteActivity::class.java else InvoiceListActivity::class.java)
-            this.baseContext.startActivity(i)
+
+            val builder1=AlertDialog.Builder(basket.context)
+            builder1.setTitle("Εκτύπωση παραστατικού")
+            builder1.setMessage("Να εκτυπωθεί το παραστατικό;")
+            builder1.setPositiveButton("Ναι",{dialog,id->
+                onPrint(basket.context)
+                ft()
+            })
+            builder1.setNegativeButton("Οχι",{dialog,id->
+                 ft()
+            })
+            val dialog1=builder1.create()
+            dialog1.show()
+
+
 
         })
-        builder.setNegativeButton("Επιστροφή", null) // create and show the alert dialog
+        builder.setNegativeButton("Όχι",null) // create and show the alert dialog
         val dialog = builder.create()
         dialog.show()
+
 
 
 
@@ -170,6 +216,22 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
     }
 
+
+
+    override fun onPrint(context: Context)
+    {
+
+        val bt=BTPrinterBixolon(context)
+
+
+        val handler = MyDBHandler(context = context, version = 1, name = null, factory = null)
+        val company=handler.getCompanyData()
+        bt.connect(company, finDoc, finDocLines, bt::invoice)
+
+
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -177,27 +239,62 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         //setSupportActionBar(toolbar)
 
         val extras=intent.extras
-        finDoc.cusId=extras.getInt("cusid")
-        finDoc.dsrId=extras.getInt("dsrtype")
-        finDoc.vatStatus=extras.getInt("vatstatusid")
-        basket.vatStatus=extras.getInt("vatstatusid")
+        mode=extras.getInt("mode")
+        finDoc.customer=extras?.getSerializable("customer") as Customer??: Customer()
 
-        finDoc.isCash=extras.getInt("iscash")
+        finDoc.dsrId=extras?.getInt("dsrtype")?:0
+        finDoc.isCash=extras?.getInt("iscash")?:-1
         finDoc.deliveryAddress=extras?.getString("deliveryaddress")
         finDoc.comments=extras?.getString("comments")
+
+        val docSeries:DocSeries?=extras?.getSerializable("docseries") as DocSeries?
+        if(docSeries!=null && mode==0) {
+            finDoc.shortDescr = docSeries.shortDescr
+            finDoc.typeDescr = docSeries.description
+            finDoc.copies = docSeries.copies
+        }
+
+
+
+
+
         val handler=MyDBHandler(context=this.baseContext,version = 1,name=null,factory = null)
         val salesmanId=handler.getSalesman()
         finDoc.salesmanId=salesmanId
+        finDoc.third=extras.getSerializable("third") as Customer?
 
-        if (extras.getInt("mode")==1)
+        finDoc.subsidiary=extras?.getSerializable("subsidiary") as Subsidiary?
+
+
+
+        basket.vatStatus=finDoc.customer?.vatstatusid
+
+
+
+
+
+
+
+        if (finDoc.third!=null && mode==0)
+        {
+            //val c=handler.getCustomerById(finDoc.cusId)!!
+            finDoc.shpToPerId=finDoc.customer.erpid
+            finDoc.shpToAddid=finDoc.subsidiary?.erpId
+
+
+        }
+
+
+        if (mode==1)
         {
             mode=1
             finDoc=handler.getInvoiceById(extras.getInt("ftrid"))
             finDocLines=handler.getInvoiceLines(extras.getInt("ftrid"))
             basket.finDocLines=finDocLines
+
         }
 
-        Log.d("JIM-MODE",mode?.toString())
+
         setupViewPager()
 
 
@@ -214,6 +311,7 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         if (fragment is Tab2Fragment) {
             fragment.setOnInsertListener(this)
             fragment.setOnDiscardListener(this)
+            fragment.setOnPrintListener(this)
         }
 
 
@@ -229,9 +327,9 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
 
     override fun onBackPressed() {
-        //super.onBackPressed()
-        //var i:Intent=if (mode==0) Intent(this, RouteActivity::class.java) else Intent(this, InvoiceListActivity::class.java)
-        //startActivity(i)
+        super.onBackPressed()
+        val i:Intent=if (mode==0) Intent(this, RouteActivity::class.java) else Intent(this, InvoiceListActivity::class.java)
+        startActivity(i)
     }
 
 
@@ -288,14 +386,14 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
                 TabLayout.OnTabSelectedListener {
 
             override fun onTabSelected(tab: TabLayout.Tab) {
-                Log.d("JIM","3")
+
                 basket.notifyChanges()
                 pager.currentItem = tab.position
 
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
-                Log.d("JIM","4")
+
                 basket.notifyChanges()
 
             }

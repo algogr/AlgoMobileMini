@@ -225,7 +225,8 @@ class Tab1Fragment : Fragment() {
                     args.putInt("vtcId",MaterialList!![position].vatid)
                     args.putFloat("price",MaterialList!![position].price)
                     args.putFloat("discount",MaterialList!![position].maxdiscount)
-                    Log.d("JIM1",MaterialList!![position].vatid.toString())
+                    args.putFloat("secdiscount",0.00f)
+
                     itemFragment.arguments=args
                     //fragmentTransaction.replace(R.id.frameLayout1, itemFragment)
                     fragmentTransaction.replace(R.id.containerFrame1,itemFragment)

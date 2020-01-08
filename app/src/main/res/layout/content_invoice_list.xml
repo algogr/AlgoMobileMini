@@ -10,8 +10,9 @@
         tools:context=".InvoiceListActivity">
 
     <ListView
-            android:layout_width="395dp"
-            android:layout_height="659dp" tools:layout_editor_absoluteY="8dp" tools:layout_editor_absoluteX="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteY="8dp" tools:layout_editor_absoluteX="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:id="@+id/invoicelistview"/>

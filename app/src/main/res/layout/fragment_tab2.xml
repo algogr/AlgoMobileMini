@@ -20,19 +20,28 @@
             android:id="@+id/acceptButton2"
             android:background="@drawable/checkmark"
             app:layout_constraintTop_toBottomOf="@id/listView"
-            app:layout_constraintLeft_toLeftOf="parent"
 
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="80dp"/>
+             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/cancelButton2"/>
     <Button
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:id="@+id/cancelButton2"
             android:background="@drawable/cancel"
             app:layout_constraintTop_toBottomOf="@id/listView"
-            app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="20dp"
-            android:layout_marginRight="80dp"/>
+            app:layout_constraintStart_toEndOf="@+id/acceptButton2"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toStartOf="@+id/printerButton"/>
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/printerButton"
+            android:background="@drawable/printer"
+            app:layout_constraintTop_toBottomOf="@id/listView"
+             app:layout_constraintStart_toEndOf="@+id/cancelButton2"
+            android:layout_marginTop="20dp"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toEndOf="parent"/>
     <TextView
             android:text="Καθαρή Αξία"
             android:layout_width="wrap_content"

@@ -21,6 +21,7 @@ class BTPrint {
     lateinit var mBluetoothAdapter: BluetoothAdapter
     lateinit var mmSocket: BluetoothSocket
     lateinit var mmDevice: BluetoothDevice
+    var prnDevice=CustomPrinter()
     lateinit var mmOutputStream: OutputStream
     lateinit var mmInputStream: InputStream
     lateinit var workerThread: Thread
@@ -30,6 +31,7 @@ class BTPrint {
     @Volatile
     var stopWorker:Boolean=false
 
+    val lock = "lockAccess"
 
     fun findBT()
     {
@@ -51,11 +53,11 @@ class BTPrint {
             if (pairedDevices.size > 0) {
                 for (device in pairedDevices) {
 
-                    Log.d("JIM",device.name)
+
                     // RPP300 is the name of the bluetooth printer device
                     // we got this name from the list of paired devices
                     if (device.getName() == "MY3A_626164346636") {
-                        Log.d("JIM","MY#FOUND")
+
                         mmDevice = device
                         break
                     }
@@ -73,26 +75,6 @@ class BTPrint {
 
 
 
-    fun findCustomBt(){
-        val deviceList=CustomAndroidAPI.EnumBluetoothDevices()
-
-        for (device in deviceList)
-        {
-            if (device.name== "MY3A_626164346636")
-            {
-                val t=CustomAndroidAPI()
-
-                val prnDevice=t.getPrinterDriverBT(device)
-                val font = PrinterFont()
-                font.setEmphasized(true)
-                font.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER)
-                prnDevice.printText("Guy Debord")
-
-
-            }
-        }
-
-    }
 
 
     @Throws(IOException::class)
@@ -117,16 +99,6 @@ class BTPrint {
 
     }
 
-    fun openCustomBT(){
-        val t=CustomAndroidAPI()
-        Log.d("JIM",mmDevice.name.toString())
-        val prnDevice=t.getPrinterDriverBT(mmDevice)
-        val font = PrinterFont()
-        font.setEmphasized(true)
-        font.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER)
-        prnDevice.printText("Guy Debord")
-
-    }
 
 
     fun beginListenForData() {

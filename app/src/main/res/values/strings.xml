@@ -15,4 +15,5 @@
     <string name="title_activity_cash_open">CashOpenActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_geo_code_test">GeoCodeTest</string>
+    <string name="title_activity_cash_main_report">CashMainReport</string>
 </resources>

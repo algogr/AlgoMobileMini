@@ -39,13 +39,21 @@ class UploadFilesTask(val context:UploadDB) : AsyncTask<Int, Int, String?>() {
         val response = client.newCall(request).enqueue(object: Callback {override fun onFailure(call: Call,e:IOException) {
 
             result="Υπάρχει πρόβλημα στη σύνδεση με τον server"
+            Log.d("JIM_ERROR",e.toString())
             onPostExecute("Υπάρχει πρόβλημα στη σύνδεση με τον server")
         }
 
             override fun onResponse(call: Call, response: Response) {
-                result="Η αποστολή ήταν επιτυχής"
-                Log.d("JIM","SUCCESS:$result")
-                onPostExecute("Η αποστολή ήταν επιτυχής")
+                if (response.code()==200) {
+                   // result = "Η αποστολή ήταν επιτυχής"
+                    //Log.d("JIM", "SUCCESS:$result")
+                    onPostExecute("Η αποστολή ήταν επιτυχής")
+                }
+                else
+                {
+                    onPostExecute("Αποτυχία αποστολής!!")
+                }
+
             }
 
 

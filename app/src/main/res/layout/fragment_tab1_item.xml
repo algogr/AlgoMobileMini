@@ -11,11 +11,13 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginLeft="5dp"
             android:id="@+id/itemText" android:textStyle="bold"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/itemText"
             app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginLeft="5dp"
             android:id="@+id/balanceText" android:textAlignment="textEnd" android:textStyle="bold"/>
 </android.support.constraint.ConstraintLayout>

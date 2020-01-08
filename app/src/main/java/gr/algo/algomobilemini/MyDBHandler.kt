@@ -217,8 +217,8 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
 
     fun getInvoiceById(ftrId:Int):FinDoc{
-        val query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments,f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d." +
-                "shortdescr FROM fintrade f,docseries d where f.dsrid=d.id and f.id="+ftrId.toString()
+        var query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments,f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d." +
+                "shortdescr,f.suberpid,f.shptoperid,f.shptoaddid,d.description,d.copies FROM fintrade f,docseries d where f.dsrid=d.id and f.id="+ftrId.toString()
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -236,8 +236,65 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val vatAmount:Float=cursor.getFloat(10)
         val totAmount:Float=cursor.getFloat(11)
         val shortDescr=cursor.getString(12)
+        val subErpid:Int?=cursor.getInt(13)
+        val shptoPerid:Int?=cursor.getInt(14)
+        val shptoAddId:Int?=cursor.getInt(15)
+        val typedescr:String=cursor.getString(16)
+        val copies:Int=cursor.getInt(17)
 
-        val invoice=FinDoc(id,cusId,dsrId,ftrDate,dsrNumber,salesmanId,comments,deliveryAddress,erpUpd,netValue,vatAmount,totAmount,shortDescr=shortDescr)
+        var customer:Customer
+        var third:Customer?=null
+
+
+        query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id=$cusId order by c.name"
+        var cursor1=db.rawQuery(query,null)
+        cursor1.moveToPosition(0)
+        val customer1=Customer(name = cursor1.getString(0),address = cursor1.getString(1),district = cursor1.getString(2),title = cursor1.getString(3),
+                afm = cursor1.getString(4),doyid = cursor1.getInt(5),erpid = cursor1.getInt(6),occupation = cursor1.getString(7),
+                tel1 = cursor1.getString(8),tel2 = cursor1.getString(9),fax=cursor1.getString(10),email=cursor1.getString(11),
+                vatstatusid = cursor1.getInt(12),city = cursor1.getString(13),comments=cursor1.getString(14),routeid = cursor1.getInt(15),erpupd = cursor1.getInt(16),id=cursor1.getInt(17),
+                balance = cursor1.getFloat(18),doy = cursor1.getString(19) )
+        customer=customer1
+
+        query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name"
+        cursor1=db.rawQuery(query,null)
+        var customer2:Customer=Customer()
+        if (cursor1.moveToPosition(0)) {
+            customer2 = Customer(name = cursor1.getString(0), address = cursor1.getString(1), district = cursor1.getString(2), title = cursor1.getString(3),
+                    afm = cursor1.getString(4), doyid = cursor1.getInt(5), erpid = cursor1.getInt(6), occupation = cursor1.getString(7),
+                    tel1 = cursor1.getString(8), tel2 = cursor1.getString(9), fax = cursor1.getString(10), email = cursor1.getString(11),
+                    vatstatusid = cursor1.getInt(12), city = cursor1.getString(13), comments = cursor1.getString(14), routeid = cursor1.getInt(15), erpupd = cursor1.getInt(16), id = cursor1.getInt(17),
+                    balance = cursor1.getFloat(18),doy = cursor1.getString(19))
+            customer=customer2
+            third=customer1
+        }
+
+
+
+        val t=if((subErpid!!>0) || (subErpid==null)) subErpid else shptoAddId
+
+        query="SELECT descr,street,district,vatstatus,rotid,perid,erpid,city from subsidiary where erpid="+t.toString()
+
+
+
+        cursor1=db.rawQuery(query,null)
+        var subsidiary:Subsidiary?=null
+        if(cursor1.moveToPosition(0)) {
+            subsidiary = Subsidiary(descr = cursor1.getString(0), street = cursor1.getString(1), district=cursor1.getString(2),
+                    vatstatus = cursor1.getInt(3), rotid = cursor1.getInt(4),
+                    perid = cursor1.getInt(5), erpId = cursor1.getInt(6), city = cursor1.getString(7))
+
+        }
+
+        val invoice=FinDoc(id=id,dsrId = dsrId,ftrdate = ftrDate,dsrNumber = dsrNumber,salesmanId = salesmanId,comments = comments,deliveryAddress = deliveryAddress,erpUpd = erpUpd,
+                netValue = netValue,vatAmount = vatAmount,totAmount = totAmount,shortDescr=shortDescr,customer = customer,third = third,subsidiary = subsidiary,
+                typeDescr = typedescr,shpToPerId = shptoPerid,shpToAddid = shptoAddId,copies = copies)
+
+        cursor.close()
+        cursor1.close()
+        db.close()
 
         return invoice
 
@@ -245,7 +302,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getInvoices():MutableList<FinDoc>
     {
-        val query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments,f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d.shortdescr FROM fintrade f,docseries d where f.dsrid=d.id order by ftrdate,dsrnumber"
+
+        var query="SELECT f.id,f.ftrdate,f.dsrid,f.dsrnumber,f.cusid,f.salesmanid,f.comments" +
+                ",f.deliveryaddress,f.erpupd,f.netvalue,f.vatamount,f.totamount,d.shortdescr,f.suberpid,f.shptoperid,f.shptoaddid,d.description,d.copies FROM fintrade f,docseries d where f.dsrid=d.id order by ftrdate,dsrnumber"
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -273,14 +332,64 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val vatAmount:Float=cursor.getFloat(10)
             val totAmount:Float=cursor.getFloat(11)
             val shortDescr=cursor.getString(12)
+            val subErpid:Int?=cursor.getInt(13)
+            val shptoPerid:Int?=cursor.getInt(14)
+            val shptoAddId:Int?=cursor.getInt(15)
+            val typedescr:String=cursor.getString(16)
+            val copies:Int=cursor.getInt(17)
+
+            var customer:Customer
+            var third:Customer?=null
 
 
-            val invoice=FinDoc(id,cusId,dsrId,ftrDate,dsrNumber,salesmanId,comments,deliveryAddress,erpUpd,netValue,vatAmount,totAmount,shortDescr=shortDescr)
+            query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                    "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id=$cusId order by c.name"
+            var cursor1=db.rawQuery(query,null)
+            cursor1.moveToPosition(0)
+            val customer1=Customer(name = cursor1.getString(0),address = cursor1.getString(1),district = cursor1.getString(2),title = cursor1.getString(3),
+                    afm = cursor1.getString(4),doyid = cursor1.getInt(5),erpid = cursor1.getInt(6),occupation = cursor1.getString(7),
+                    tel1 = cursor1.getString(8),tel2 = cursor1.getString(9),fax=cursor1.getString(10),email=cursor1.getString(11),
+                    vatstatusid = cursor1.getInt(12),city = cursor1.getString(13),comments=cursor1.getString(14),routeid = cursor1.getInt(15),erpupd = cursor1.getInt(16),id=cursor1.getInt(17),
+                    balance = cursor1.getFloat(18),doy = cursor1.getString(19) )
+            customer=customer1
+
+            query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                    "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name"
+            cursor1=db.rawQuery(query,null)
+            var customer2:Customer=Customer()
+            if (cursor1.moveToPosition(0)) {
+                customer2 = Customer(name = cursor1.getString(0), address = cursor1.getString(1), district = cursor1.getString(2), title = cursor1.getString(3),
+                        afm = cursor1.getString(4), doyid = cursor1.getInt(5), erpid = cursor1.getInt(6), occupation = cursor1.getString(7),
+                        tel1 = cursor1.getString(8), tel2 = cursor1.getString(9), fax = cursor1.getString(10), email = cursor1.getString(11),
+                        vatstatusid = cursor1.getInt(12), city = cursor1.getString(13), comments = cursor1.getString(14), routeid = cursor1.getInt(15), erpupd = cursor1.getInt(16), id = cursor1.getInt(17),
+                        balance = cursor1.getFloat(18),doy = cursor1.getString(19))
+                customer=customer2
+                third=customer1
+            }
 
 
 
+            val t=if((subErpid!!>0) || (subErpid==null)) subErpid else shptoAddId
+
+            query="SELECT descr,street,district,vatstatus,rotid,perid,erpid,city from subsidiary where erpid="+t.toString()
+
+
+
+            cursor1=db.rawQuery(query,null)
+            var subsidiary:Subsidiary?=null
+            if(cursor1.moveToPosition(0)) {
+                subsidiary = Subsidiary(descr = cursor1.getString(0), street = cursor1.getString(1), district=cursor1.getString(2),
+                        vatstatus = cursor1.getInt(3), rotid = cursor1.getInt(4),
+                        perid = cursor1.getInt(5), erpId = cursor1.getInt(6), city = cursor1.getString(7))
+
+            }
+
+            val invoice=FinDoc(id=id,dsrId = dsrId,ftrdate = ftrDate,dsrNumber = dsrNumber,salesmanId = salesmanId,comments = comments,deliveryAddress = deliveryAddress,
+                    erpUpd = erpUpd,netValue = netValue,vatAmount = vatAmount,totAmount = totAmount,shortDescr=shortDescr,customer = customer,third = third,subsidiary = subsidiary,
+                    typeDescr = typedescr,shpToPerId = shptoPerid,shpToAddid =shptoAddId,copies = copies)
             invoiceList.add(j,invoice)
 
+            cursor1.close()
 
         }
         cursor.close()
@@ -330,7 +439,8 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getCustomersByRoute(route:Int):MutableList<Customer>?
     {
-        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.routeid=$route order by c.name"
+        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.routeid=$route order by c.name"
 
 
         val db=this.writableDatabase
@@ -363,10 +473,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val erpupd:Int=Integer.parseInt(cursor.getString(16))
             val id:Int =cursor.getInt(17)
             val balance:Float=cursor.getFloat(18)
+            val doy:String?=cursor?.getString(19)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
-                    routeid,erpupd,id,balance)
+                    routeid,erpupd,id,balance,doy)
 
 
             customerList.add(j,customer)
@@ -385,8 +496,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomerById(cusId:Int):Customer?
     {
 
-        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.id="+cusId
-        Log.d("JIM-QUERY",query)
+        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id="+cusId
+
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
         var customer:Customer?=null
@@ -410,10 +522,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val erpupd: Int = cursor.getInt(16)
             val id: Int = cursor.getInt(17)
             val balance: Float = cursor.getFloat(18)
+            val doy:String?=cursor?.getString(19)
 
 
             customer = Customer(name, address, district, title, afm, doyid, erpid, occupation, tel1, tel2, fax, email, vatstatusid, city, comments,
-                    routeid, erpupd, id, balance)
+                    routeid, erpupd, id, balance,doy)
 
 
 
@@ -430,8 +543,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getCustomerByErpId(cusId:Int):Customer? {
 
-        val query = "SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid where c.erpid=" + cusId
-        Log.d("JIM-QUERY", query)
+        val query = "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=" + cusId
+
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
         var customer: Customer? = null
@@ -456,10 +570,12 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val erpupd: Int = cursor.getInt(16)
         val id: Int = cursor.getInt(17)
         val balance: Float = cursor.getFloat(18)
+        val doy:String=cursor.getString(19)
+
 
 
         customer = Customer(name, address, district, title, afm, doyid, erpid, occupation, tel1, tel2, fax, email, vatstatusid, city, comments,
-                routeid, erpupd, id, balance)
+                routeid, erpupd, id, balance,doy)
     }
 
 
@@ -476,7 +592,8 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getAllCustomers():MutableList<Customer>
     {
 
-        val query="SELECT c.*,cf.balance from customer c left outer join custfindata cf on c.erpid=cf.cusid order by c.name"
+        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid order by c.name"
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -508,10 +625,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val erpupd:Int=Integer.parseInt(cursor.getString(16))
             val id:Int=Integer.parseInt(cursor.getString(17))
             val balance:Float=cursor.getFloat(18)
+            val doy:String?=cursor.getString(19)
 
 
             val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
-                    routeid,erpupd,id,balance)
+                    routeid,erpupd,id,balance,doy)
 
 
             customerList.add(j,customer)
@@ -571,7 +689,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     {
         val query="SELECT ifnull(lastqty,0),lastdate,ifnull(lastprice,0),ifnull(lastdiscount,0),ifnull(lastdiscount2,0) from storecustdata where iteid="+
                 iteId.toString()+" and cusid="+cusId.toString()
-        Log.d("JIM-QUERY",query)
+
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
         val bundle: Bundle = Bundle()
@@ -674,7 +792,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         }
         cursor?.close()
         db.close()
-        Log.d("JIM2",answer?:"")
+
         return answer?:""
     }
 
@@ -691,7 +809,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val cusId=if (customer.erpid>0 ) customer.erpid else customer.id
         val query= "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,perid) VALUES (date('now'),1," +amount.toString()+",'" + customer.name+
          "'," + "1" + "," +  cusId.toString() + ")"
-        Log.d("JIM",query)
+
         db.execSQL(query)
         db.close()
     }
@@ -726,49 +844,119 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun insertInvoice(findoc:FinDoc,isUpdate:Boolean):Int{
         var query="SELECT lastno FROM docseries WHERE codeid='"+findoc.dsrId.toString()+"'"
-        Log.d("JIM",query)
+
         val db=this.writableDatabase
         var cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val lastno=  if(isUpdate)cursor.getInt(0) else cursor.getInt(0)+1
 
-        query="SELECT erpid FROM customer WHERE id="+findoc.cusId
-        Log.d("JIM",query)
-        cursor=db.rawQuery(query,null)
-        cursor.moveToPosition(0)
-        var cusErpId=if (isUpdate) findoc.cusId else cursor.getInt(0)
-        if (cusErpId==0) cusErpId=findoc.cusId
+        val dsrno=if (isUpdate) findoc.dsrNumber else lastno.toString()
 
 
-       query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash) VALUES " +
-                "(date('now'),"+findoc.dsrId.toString()+","+lastno.toString()+","+cusErpId.toString()+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
+       query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,cuserpid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash,suberpid,shptoperid,shptoaddid) VALUES " +
+                "(date('now'),"+findoc.dsrId.toString()+","+ dsrno.toString()+","+findoc.customer.id+","+findoc.customer.erpid+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
                 "',"+findoc.erpUpd.toString()+","+findoc.netValue.toString()+","+ findoc.vatAmount.toString()+
-                ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+")"
-        Log.d("JIM",query)
+                ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+","+findoc.subsidiary?.erpId.toString()+","+findoc.shpToPerId.toString()+","+
+               findoc.shpToAddid.toString()+")"
+
         db.execSQL(query)
         query="SELECT id from fintrade order by id desc limit 1"
-        Log.d("JIM",query)
+
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val ftrid=cursor.getInt(0)
         query="UPDATE docseries SET lastno="+lastno.toString()+" where codeid="+findoc.dsrId.toString()
-        Log.d("JIM",query)
+
         db.execSQL(query)
         if(findoc.isCash==0) {
-            query = "update custfindata set balance=balance+" + findoc.totAmount + "*(select valmode from docseries where codeid='" + findoc.dsrId.toString() + "') where cusid=" + findoc.cusId.toString()
+            query = "update custfindata set balance=balance+" + findoc.totAmount + "*(select valmode from docseries where codeid='" + findoc.dsrId.toString() + "') where cusid=${findoc.customer.erpid}"
             db.execSQL(query)
         }
         else {
-            query = "select name from customer where erpid=" + findoc.cusId.toString()
-            cursor = db.rawQuery(query, null)
-            cursor.moveToPosition(0)
-            val cusName = cursor.getString(0)
-            query = "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,ftrid,perid) VALUES (date('now'),1," + findoc.totAmount + ",'" + cusName + "'," + "1" + "," + ftrid.toString() + "," + if (cusErpId>0 ) cusErpId.toString() else findoc.cusId.toString() + ")"
+            query = "INSERT INTO cashtrn (trndate,trntype,amount,justification,trncategory,ftrid,perid,pererpid) VALUES (date('now'),1," + findoc.totAmount + ",'" +
+                    findoc.customer.name + "'," + "1" + "," + ftrid.toString() + "," + findoc.customer.id +","+findoc.customer.erpid+")"
             db.execSQL(query)
         }
         cursor.close()
         db.close()
         return ftrid
+    }
+
+
+    fun getCustomerSubs(cusId:Int):MutableList<Subsidiary>{
+        val db=this.writableDatabase
+        val query="select descr,street,district,city,vatstatus,rotid,erpid from subsidiary where perid=(select erpid from customer where id=$cusId)"
+        val cursor=db.rawQuery(query,null)
+        val subsList=  mutableListOf<Subsidiary>()
+        for (i in 0..cursor.count-1)
+        {
+            cursor.moveToPosition(i)
+            val descr=cursor.getString(0)
+            val street=cursor.getString(1)
+            val district=cursor.getString(2)
+            val city=cursor.getString(3)
+            val vatStatus=cursor.getInt(4)
+            val rotId=cursor.getInt(5)
+            val erpId=cursor.getInt(6)
+            subsList.add(Subsidiary(descr=descr,street = street,district = district,city = city,vatstatus = vatStatus,rotid = rotId,erpId = erpId))
+        }
+        return subsList
+    }
+
+
+
+    fun getThirdCustomers():MutableList<Customer>{
+        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.isthird=1 order by c.name"
+
+
+        val db=this.writableDatabase
+        val cursor=db.rawQuery(query,null)
+
+        val customerList= mutableListOf<Customer>()
+
+        val i=cursor.count-1
+        for (j in 0..i)
+        {
+            cursor.moveToPosition(j)
+
+
+            val name:String=cursor.getString(0)
+            val address:String?=cursor.getString(1)
+            val district:String?=cursor.getString(2)
+            val title:String?=cursor.getString(3)
+            val afm:String=cursor.getString(4)
+            val doyid:Int?=cursor.getInt(5)
+            val erpid: Int=cursor.getInt(6)
+            val occupation:String?=cursor.getString(7)
+            val tel1:String?=cursor.getString(8)
+            val tel2:String?=cursor.getString(9)
+            val fax:String?=cursor.getString(10)
+            val email:String?=cursor.getString(11)
+            val vatstatusid:Int=Integer.parseInt(cursor.getString(12))
+            val city:String?=cursor.getString(13)
+            val comments:String?=cursor.getString(14)
+            val routeid:Int=Integer.parseInt(cursor.getString(15))
+            val erpupd:Int=Integer.parseInt(cursor.getString(16))
+            val id:Int =cursor.getInt(17)
+            val balance:Float=cursor.getFloat(18)
+            val doy:String?=cursor.getString(19)
+
+
+            val customer=Customer(name,address,district,title,afm,doyid,erpid,occupation,tel1,tel2,fax,email,vatstatusid,city,comments,
+                    routeid,erpupd,id,balance,doy)
+
+
+            customerList.add(j,customer)
+
+
+        }
+        cursor.close()
+        db.close()
+
+        return  customerList
+
+
     }
 
 
@@ -779,10 +967,10 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         for (findocLine in findocLines)
         {
-            var query="INSERT into storetradelines(iteid,ftrid,primaryqty,price,discount,discountpercent,linevalue,vatamount,vatid) " +
-                    "VALUES ("+findocLine.iteID.toString()+","+ftrId.toString()+","+findocLine.firstQty.toString()+","+findocLine.price.toString()+","+findocLine.discount.toString()+","+findocLine.discount.toString()+
+            var query="INSERT into storetradelines(iteid,ftrid,primaryqty,price,discount,secdiscount,linevalue,vatamount,vatid) " +
+                    "VALUES ("+findocLine.iteID.toString()+","+ftrId.toString()+","+findocLine.firstQty.toString()+","+findocLine.price.toString()+","+findocLine.discount.toString()+","+findocLine.secDiscount.toString()+
                     ","+findocLine.netValue.toString()+","+findocLine.vatValue.toString()+","+findocLine.vtcID.toString()+")"
-            Log.d("JIM",query)
+
             db.execSQL(query)
             query="UPDATE storefindata set qty=ifnull(qty,0)+(select quantmode from docseries dc,fintrade f where f.dsrid=dc.id and f.id="+ftrId+")*"+findocLine.firstQty+" where iteid="+findocLine.iteID
             db.execSQL(query)
@@ -793,9 +981,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     fun getInvoiceLines(ftrId:Int):MutableList<FinDocLine>{
         val db=this.writableDatabase
-        val query="select st.iteid,st.primaryqty,st.price,st.discount,st.linevalue,st.vatamount,st.vatid,m.code,m.description " +
+        val query="select st.iteid,st.primaryqty,st.price,st.discount,st.linevalue,st.vatamount,st.vatid,m.code,m.description,st.secdiscount " +
                 "from storetradelines st,material m where m.erpid=st.iteid and st.ftrid="+ftrId.toString()
-        Log.d("JIM-MODE",query)
+
         val cursor=db.rawQuery(query,null)
         val finDocLines= mutableListOf<FinDocLine>()
         val i=cursor.count-1
@@ -810,8 +998,8 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             val vatId = cursor.getInt(6)
             val iteCode=cursor.getString(7)
             val iteDescription=cursor.getString(8)
-
-            val finDocLine = FinDocLine(iteID = iteId, firstQty = primaryQty, price = price, discount = discount, netValue = lineValue, vatValue = vatAmount, vtcID = vatId,iteCode = iteCode,iteDescription = iteDescription)
+            val secDiscount=cursor.getFloat(9)
+            val finDocLine = FinDocLine(iteID = iteId, firstQty = primaryQty, price = price, discount = discount, netValue = lineValue, vatValue = vatAmount, vtcID = vatId,iteCode = iteCode,iteDescription = iteDescription,secDiscount = secDiscount)
             finDocLines.add(finDocLine)
         }
         cursor.close()
@@ -862,11 +1050,74 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
     }
 
+
+    fun getPricing(iteId:Int,cusId: Int):Bundle?
+    {
+        var bundle:Bundle?=null
+        val db=this.writableDatabase
+        val query="select ifnull(price,0),ifnull(discount,0),ifnull(secdiscount,0) from customerprices where iteid=$iteId and cusid=$cusId"
+        val cursor=db.rawQuery(query,null)
+        val i=cursor.count-1
+        if(i>0)
+        {
+            bundle=Bundle()
+            for (j in 0..i) {
+                cursor.moveToPosition(j)
+                if (cursor.getFloat(0) > 0) bundle.putFloat("price", cursor.getFloat(0))
+                if (cursor.getFloat(1) > 0) bundle.putFloat("discount", cursor.getFloat(1))
+                if (cursor.getFloat(2) > 0) bundle.putFloat("secdiscount", cursor.getFloat(2))
+
+            }
+        }
+
+
+        return bundle
+    }
+
+
+    fun getCompanyData():Company
+    {
+        val db=this.writableDatabase
+        val query="SELECT name,occupation,address,city,tel1,tel2,email,afm,doy from companydata"
+        val cursor=db.rawQuery(query, null)
+        cursor.moveToPosition(0)
+        val company:Company=Company(name = cursor.getString(0),occupation =cursor.getString(1),
+                address = cursor.getString(2),city = cursor.getString(3),tel1 = cursor.getString(4),
+                tel2 = cursor.getString(5),email = cursor.getString(6),afm = cursor.getString(7),
+                doy = cursor.getString(8))
+        cursor.close()
+        db.close()
+        return company
+
+
+
+    }
+
+    fun getDocSeriesDetails(codeId:String):DocSeries
+    {
+        val db=this.writableDatabase
+        val query="SELECT description,shortdescr,copies from docseries where codeid='$codeId'"
+        Log.d("JIM-DOC",query)
+        val cursor=db.rawQuery(query, null)
+        cursor.moveToPosition(0)
+        val docseries:DocSeries= DocSeries(codeId=codeId,description = cursor.getString(0),shortDescr = cursor.getString(1),copies = cursor.getInt(2))
+        cursor.close()
+        db.close()
+        return docseries
+
+
+    }
+
+
     companion object {
         private val DATABASE_VERSION=1
         // private val DATABASE_NAME="/storage/sdcard1/algomobilemini/algo.sqlite"
         private val DATABASE_NAME="algo.sqlite"
     }
+
+
+
+
 
 
 

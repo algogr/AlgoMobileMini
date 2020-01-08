@@ -15,7 +15,7 @@
                 android:layout_height="74dp" android:id="@+id/itemSearchView"/>
         <ListView
                 android:layout_width="match_parent"
-                android:layout_height="648dp" android:id="@+id/fullProductListView"/>
+                android:layout_height="match_parent" android:id="@+id/fullProductListView"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
