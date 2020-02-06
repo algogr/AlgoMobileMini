@@ -42,7 +42,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
         } else {
             val date = Date()
             //val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
-            val formatter = SimpleDateFormat("MMM dd yyyy")
+            val formatter = SimpleDateFormat("dd.MM.yyyy")
             answer = formatter.format(date)
             Log.d("answer",answer)
 
@@ -78,6 +78,21 @@ class InvoiceHeaderActivity : AppCompatActivity() {
 
 
         val handler=MyDBHandler(context = this.baseContext,version = 1,name=null,factory = null)
+
+        val preferences=handler.getPreferences()
+        if (preferences.getSerializable("updatecustomer") as Int==0) fab1.visibility=View.GONE
+
+        val activeDocs=preferences.getSerializable("activedocs") as String
+        if (!activeDocs.contains("1")) tdaRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("2")) daRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("3")) deRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("4")) pistRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("5")) orderRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("6")) ddeRadioButton.visibility=View.GONE
+        if (!activeDocs.contains("7")) sdaRadioButton.visibility=View.GONE
+
+
+
         subs=handler.getCustomerSubs(mCustomer.id)
         if (!subs!!.isEmpty()) {
             var subsDescr = Array(subs!!.size){""}
@@ -87,7 +102,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             }
             val adapter = ArrayAdapter(
                     this, // Context
-                    android.R.layout.simple_spinner_item,
+                    R.layout.custom_spinner,
                     subsDescr
             )
             subSpinner.adapter = adapter
@@ -125,7 +140,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
                     }
                     val adapter = ArrayAdapter(
                             this, // Context
-                            android.R.layout.simple_spinner_item,
+                           R.layout.custom_spinner_1 ,
                             thirdsDescr
                     )
 
@@ -140,6 +155,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             {
                 thirdSpinner.visibility=View.GONE
             }
+
         })
 
 
@@ -196,6 +212,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             val dsrpist=findViewById<RadioButton>(R.id.pistRadioButton)
             val dsrorder=findViewById<RadioButton>(R.id.orderRadioButton)
             val dsrdde=findViewById<RadioButton>(R.id.ddeRadioButton)
+            val dsrsda=findViewById<RadioButton>(R.id.sdaRadioButton)
             val dsrtype:()->Int={
                 var type:Int=-1
                 if (dsrtda.isChecked){type=1}
@@ -204,6 +221,7 @@ class InvoiceHeaderActivity : AppCompatActivity() {
                 if (dsrde.isChecked){type=4}
                 if (dsrorder.isChecked){type=5}
                 if (dsrdde.isChecked){type=6}
+                if (dsrsda.isChecked){type=7}
                 type
 
             }
@@ -241,6 +259,16 @@ class InvoiceHeaderActivity : AppCompatActivity() {
             startActivity(i)
 
         }
+        val defaultDoc=preferences.getSerializable("defaultdoc") as Int
+        Log.d("JIM_DEF",defaultDoc.toString())
+        if(defaultDoc==1) tdaRadioButton.isChecked=true
+        if(defaultDoc==2) daRadioButton.isChecked=true
+        if(defaultDoc==3) deRadioButton.isChecked=true
+        if(defaultDoc==4) pistRadioButton.isChecked=true
+        if(defaultDoc==5) orderRadioButton.isChecked=true
+        if(defaultDoc==6) ddeRadioButton.isChecked = true
+        if(defaultDoc==7) sdaRadioButton.isChecked=true
+
     }
 
 }

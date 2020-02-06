@@ -37,6 +37,7 @@ dependencies {
     implementation "com.akexorcist:bluetoothspp:1.0.0"
     implementation "hr.istratech:bixolon-driver:1.0.0"
 
+
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

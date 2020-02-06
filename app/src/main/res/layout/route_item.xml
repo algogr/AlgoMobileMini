@@ -8,10 +8,11 @@
     <TextView
             android:text="TextView"
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="60dp"
             android:id="@+id/textView"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="3dp"
             android:layout_marginStart="8dp"
+            android:gravity="center_vertical"
             android:textSize="18sp" android:textStyle="bold"/>
 </android.support.constraint.ConstraintLayout>

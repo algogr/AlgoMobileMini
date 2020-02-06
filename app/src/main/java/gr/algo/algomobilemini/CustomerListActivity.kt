@@ -30,6 +30,9 @@ class CustomerListActivity : AppCompatActivity() {
         val searchView = findViewById<SearchView>(R.id.searchView) as SearchView
         val handler=MyDBHandler(context = this.baseContext,version = 1,name=null,factory = null)
 
+        val preferences=handler.getPreferences()
+        if (preferences.getSerializable("addcustomer") as Int==0) fab.visibility=View.GONE
+
         val extras=intent.extras?:return
 
         routeId=extras.getInt("routeid")

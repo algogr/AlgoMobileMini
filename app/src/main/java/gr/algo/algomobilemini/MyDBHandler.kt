@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Bundle
 import android.util.Log
+import java.io.Serializable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -246,7 +247,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         var third:Customer?=null
 
 
-        query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+        query= "SELECT distinct c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
                 "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id=$cusId order by c.name"
         var cursor1=db.rawQuery(query,null)
         cursor1.moveToPosition(0)
@@ -258,7 +259,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         customer=customer1
 
         query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
-                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name"
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name LIMIT 1"
         cursor1=db.rawQuery(query,null)
         var customer2:Customer=Customer()
         if (cursor1.moveToPosition(0)) {
@@ -342,8 +343,9 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             var third:Customer?=null
 
 
-            query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+            query= "SELECT distinct c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
                     "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id=$cusId order by c.name"
+            Log.d("JIM-CUSTOMER",query)
             var cursor1=db.rawQuery(query,null)
             cursor1.moveToPosition(0)
             val customer1=Customer(name = cursor1.getString(0),address = cursor1.getString(1),district = cursor1.getString(2),title = cursor1.getString(3),
@@ -354,7 +356,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
             customer=customer1
 
             query= "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
-                    "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name"
+                    "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$shptoPerid order by c.name LIMIT 1"
             cursor1=db.rawQuery(query,null)
             var customer2:Customer=Customer()
             if (cursor1.moveToPosition(0)) {
@@ -440,7 +442,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomersByRoute(route:Int):MutableList<Customer>?
     {
         val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
-                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.routeid=$route order by c.name"
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.routeid=$route and isthird not in (1) order by c.name"
 
 
         val db=this.writableDatabase
@@ -496,7 +498,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomerById(cusId:Int):Customer?
     {
 
-        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+        val query="SELECT distinct c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
                 "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.id="+cusId
 
         val db=this.writableDatabase
@@ -544,7 +546,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getCustomerByErpId(cusId:Int):Customer? {
 
         val query = "SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
-                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=" + cusId
+                "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid where c.erpid=$cusId LIMIT 1"
 
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
@@ -592,7 +594,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getAllCustomers():MutableList<Customer>
     {
 
-        val query="SELECT c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
+        val query="SELECT distinct  c.name,c.address,c.district,c.title,c.afm,c.doyid,c.erpid,c.occupation,c.tel1,c.tel2,c.fax,c.email,c.vatstatusid,c.city,c.comments,c.routeid,c.erpupd,c.id," +
                 "cf.balance,d.description from customer c left outer join custfindata cf on c.erpid=cf.cusid left outer join doy d on c.doyid=d.erpid order by c.name"
 
         val db=this.writableDatabase
@@ -647,7 +649,7 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getAllItems():MutableList<Material>
     {
         val query="SELECT m.*,st.qty FROM Material m left outer join storefindata st on m.erpid=" +
-                "st.iteid order by m.description"
+                "st.iteid order by m.code"
 
         val db=this.writableDatabase
         val cursor=db.rawQuery(query,null)
@@ -682,6 +684,36 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         db.close()
         return itemList
 
+
+    }
+
+    fun getItembyId(iteid:Int):Material{
+
+        val query="SELECT m.*,st.qty FROM Material m left outer join storefindata st on m.erpid=" +
+                "st.iteid where erpid=$iteid order by m.code"
+
+        val db=this.writableDatabase
+        val cursor=db.rawQuery(query,null)
+
+        val itemList= mutableListOf<Material>()
+
+
+            cursor.moveToPosition(0)
+            val code=cursor.getString(0)
+            val description=cursor.getString(1)
+            val price=cursor.getFloat(2)
+            val vatid=cursor.getInt(3)
+            val maxdiscount=cursor.getFloat(4)
+            val unit=cursor.getString(5)
+            val erpid=cursor.getInt(6)
+            val id=cursor.getInt(7)
+            val balance=cursor.getFloat(8)
+
+            val item=Material(code,description, price, vatid, maxdiscount, unit, erpid, id,balance)
+
+        cursor.close()
+        db.close()
+        return item
 
     }
 
@@ -848,13 +880,13 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         val db=this.writableDatabase
         var cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
-        val lastno=  if(isUpdate)cursor.getInt(0) else cursor.getInt(0)+1
+        //val lastno=  if(isUpdate)cursor.getInt(0) else cursor.getInt(0)+1
 
-        val dsrno=if (isUpdate) findoc.dsrNumber else lastno.toString()
+        //val dsrno=if (isUpdate) findoc.dsrNumber else lastno.toString()
 
 
        query="INSERT into fintrade (ftrdate,dsrid,dsrnumber,cusid,cuserpid,salesmanid,comments,deliveryaddress,erpupd,netvalue,vatamount,totamount,cash,suberpid,shptoperid,shptoaddid) VALUES " +
-                "(date('now'),"+findoc.dsrId.toString()+","+ dsrno.toString()+","+findoc.customer.id+","+findoc.customer.erpid+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
+                "(date('now'),"+findoc.dsrId.toString()+","+ findoc.dsrNumber.toString()+","+findoc.customer.id+","+findoc.customer.erpid+","+findoc.salesmanId.toString()+",'"+findoc.comments+"','"+findoc.deliveryAddress+
                 "',"+findoc.erpUpd.toString()+","+findoc.netValue.toString()+","+ findoc.vatAmount.toString()+
                 ","+findoc.totAmount.toString()+","+findoc.isCash.toString()+","+findoc.subsidiary?.erpId.toString()+","+findoc.shpToPerId.toString()+","+
                findoc.shpToAddid.toString()+")"
@@ -865,11 +897,11 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         cursor=db.rawQuery(query,null)
         cursor.moveToPosition(0)
         val ftrid=cursor.getInt(0)
-        query="UPDATE docseries SET lastno="+lastno.toString()+" where codeid="+findoc.dsrId.toString()
+        query="UPDATE docseries SET lastno="+findoc.dsrNumber.toString()+" where codeid="+findoc.dsrId.toString()
 
         db.execSQL(query)
         if(findoc.isCash==0) {
-            query = "update custfindata set balance=balance+" + findoc.totAmount + "*(select valmode from docseries where codeid='" + findoc.dsrId.toString() + "') where cusid=${findoc.customer.erpid}"
+            query = "update custfindata set balance=balance-" + findoc.totAmount + "*(select valmode from docseries where codeid='" + findoc.dsrId.toString() + "') where cusid=${findoc.customer.erpid}"
             db.execSQL(query)
         }
         else {
@@ -880,6 +912,31 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
         cursor.close()
         db.close()
         return ftrid
+    }
+
+
+
+    fun deleteInvoice(findoc:FinDoc){
+
+
+        val db=this.writableDatabase
+        var query:String
+
+        if(findoc.isCash==0) {
+            query = "update custfindata set balance=balance+" + findoc.totAmount + "*(select valmode from docseries where codeid='" + findoc.dsrId.toString() + "') where cusid=${findoc.customer.erpid}"
+            db.execSQL(query)
+        }
+        else {
+            query = "DELETE FROM cashtrn where ftrid=${findoc.id}"
+            db.execSQL(query)
+        }
+
+
+        query="DELETE from fintrade where id=${findoc.id}"
+
+        db.execSQL(query)
+        db.close()
+
     }
 
 
@@ -973,11 +1030,39 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
 
             db.execSQL(query)
             query="UPDATE storefindata set qty=ifnull(qty,0)+(select quantmode from docseries dc,fintrade f where f.dsrid=dc.id and f.id="+ftrId+")*"+findocLine.firstQty+" where iteid="+findocLine.iteID
+            Log.d("JIM-UPdae",query)
             db.execSQL(query)
         }
         db.close()
 
     }
+
+
+    fun deleteLines(findoc: FinDoc){
+        val db=this.writableDatabase
+        var query="SELECT iteid,primaryqty FROM STORETRADeLINES where ftrid=${findoc.id}"
+        Log.d("JIM-UPdae",query)
+        val cursor=db.rawQuery(query,null)
+        val i=cursor.count-1
+        for (j in 0..i)
+        {
+            cursor.moveToPosition(j)
+            val t="UPDATE storefindata set qty=ifnull(qty,0)-((select quantmode from docseries dc,fintrade f where f.dsrid=dc.id and f.id=${findoc.id})*${cursor.getFloat(1)}) where iteid=${cursor.getInt(0)}"
+            Log.d("JIM-UPdae",t)
+            db.execSQL(t)
+        }
+
+        db.execSQL("delete from storetradelines where ftrid=${findoc.id}")
+
+
+
+        db.close()
+
+    }
+
+
+
+
 
     fun getInvoiceLines(ftrId:Int):MutableList<FinDocLine>{
         val db=this.writableDatabase
@@ -1096,15 +1181,35 @@ class MyDBHandler(context: Context,name:String?,factory:SQLiteDatabase.CursorFac
     fun getDocSeriesDetails(codeId:String):DocSeries
     {
         val db=this.writableDatabase
-        val query="SELECT description,shortdescr,copies from docseries where codeid='$codeId'"
+        val query="SELECT description,shortdescr,copies,lastno from docseries where codeid='$codeId'"
         Log.d("JIM-DOC",query)
         val cursor=db.rawQuery(query, null)
         cursor.moveToPosition(0)
-        val docseries:DocSeries= DocSeries(codeId=codeId,description = cursor.getString(0),shortDescr = cursor.getString(1),copies = cursor.getInt(2))
+        val docseries:DocSeries= DocSeries(codeId=codeId,description = cursor.getString(0),shortDescr = cursor.getString(1),
+                copies = cursor.getInt(2),lastno = cursor.getInt(3))
         cursor.close()
         db.close()
         return docseries
 
+
+    }
+
+
+    fun getPreferences():Bundle
+    {
+        val db=this.writableDatabase
+        val query="SELECT addcustomer,updatecustomer,activedocs,defaultdoc,balancecheck from preferences"
+        val cursor=db.rawQuery(query, null)
+        cursor.moveToPosition(0)
+        val bundle=Bundle()
+        bundle.putSerializable("addcustomer",cursor.getInt(0))
+        bundle.putSerializable("updatecustomer",cursor.getInt(1))
+        bundle.putSerializable("activedocs",cursor.getString(2))
+        bundle.putSerializable("defaultdoc",cursor.getInt(3))
+        bundle.putSerializable("balancecheck",cursor.getInt(4))
+        cursor.close()
+        db.close()
+        return bundle
 
     }
 

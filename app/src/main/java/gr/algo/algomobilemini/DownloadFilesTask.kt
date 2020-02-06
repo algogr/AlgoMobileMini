@@ -44,6 +44,8 @@ class DownloadFilesTask(val context:UploadDB): AsyncTask<Int, Int, String>() {
 
             override fun onResponse(call: Call, response: Response) {
 
+                if (response.body()==null) Log.d("JIMNULL","ITS NULLL!!!!")
+
                 val contentType = response.header("content-type", null)
                 var ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(contentType)
                 ext = if (ext == null) {

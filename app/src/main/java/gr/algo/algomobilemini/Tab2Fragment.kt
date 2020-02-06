@@ -71,7 +71,7 @@ class Tab2Fragment : Fragment() {
         view.sumNValueTextView.text=sumNV.toString()
         view.sumVATTextView.text=sumVat.toString()
         view.sumTotalAmountTextView.text=totalAmount.toString()
-        view.acceptButton2.isEnabled=false
+        //view.acceptButton2.isEnabled=false
         view.acceptButton2.setOnClickListener { v:View->
             insertListener?.onInsert(view.sumNValueTextView.text.toString().toFloat(),view.sumVATTextView.text.toString().toFloat(),
                     view.sumTotalAmountTextView.text.toString().toFloat(),totalPrQty,totalSecQty)
@@ -283,6 +283,8 @@ class Tab2Fragment : Fragment() {
                 args.putInt("vatstatus",vatStatus)
                 args.putInt("mode",1)
                 args.putInt("position",position)
+
+
 
 
                 itemFragment.basket=this@Tab2Fragment

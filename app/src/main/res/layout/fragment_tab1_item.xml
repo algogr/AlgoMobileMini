@@ -12,12 +12,14 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginLeft="5dp"
-            android:id="@+id/itemText" android:textStyle="bold"/>
+            android:id="@+id/itemText" android:textStyle="bold"
+            android:textSize="18sp"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/itemText"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginLeft="5dp"
-            android:id="@+id/balanceText" android:textAlignment="textEnd" android:textStyle="bold"/>
+            android:id="@+id/balanceText" android:textAlignment="textEnd" android:textStyle="bold"
+            android:textSize="18sp"/>
 </android.support.constraint.ConstraintLayout>

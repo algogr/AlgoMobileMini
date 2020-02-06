@@ -20,15 +20,15 @@ class RecyclerAdapter(val context:Context) : RecyclerView.Adapter<RecyclerAdapte
 
     private val titles = arrayOf("Τιμολόγηση",
             "Ταμείο", "Αναφορές", "Εργαλεία Διαχείρισης",
-            "Επικοινωνία με ERP")
+            "Επικοινωνία με ERP","Προτιμήσεις")
 
     private val details = arrayOf("Έκδοση Τιμολογίων", "Συναλλαγές με μετρητά",
             "Καταστάσεις αποθήκης/πωλήσεων/εισπράξεων", "Ρυθμίσεις συστήματος",
-            "Upload/Download βάσης δεομένων")
+            "Upload/Download βάσης δεομένων","Προτιμήσεις χρήστη")
 
     private val images = intArrayOf(R.drawable.mm_image_1,
             R.drawable.mm_image_2, R.drawable.mm_image_3,
-            R.drawable.mm_image_4, R.drawable.mm_image_5)
+            R.drawable.mm_image_4, R.drawable.mm_image_5,R.drawable.preferences)
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -55,48 +55,25 @@ class RecyclerAdapter(val context:Context) : RecyclerView.Adapter<RecyclerAdapte
                         v.context.startActivity(i)
                     }
                     2->{
-                        val i = Intent(v.context,InvoiceListActivity::class.java)
+                        val i = Intent(v.context,ReportsMenuActivity::class.java)
                         v.context.startActivity(i)
                     }
 
                     3->{
 
 
-
-                        //val i = Intent(v.context,BluetoothBixolonActivity::class.java)
                         val i = Intent(v.context,Settings::class.java)
                         v.context.startActivity(i)
-
-/*
-
-                        val bt=BTPrinterBixolon(context)
-
-                        val handler = MyDBHandler(context = context, version = 1, name = null, factory = null)
-                        val company=handler.getCompanyData()
-                        bt.connect(company,bt::invoice)
-
- */
-                        /*
-                        Handler().postDelayed(Runnable {
-                            bt.printCharsets()
-                        }, 3000)
-*/
-                        //bt.printCharsets()
-
-
-
-
-
-
-
-
-
-
 
                     }
 
                     4->{
                         val i = Intent(v.context,UploadDB::class.java)
+                        v.context.startActivity(i)
+                    }
+
+                    5->{
+                        val i = Intent(v.context,Preferences::class.java)
                         v.context.startActivity(i)
                     }
                 }

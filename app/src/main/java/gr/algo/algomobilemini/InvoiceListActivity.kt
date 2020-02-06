@@ -34,7 +34,7 @@ class InvoiceListActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val i= Intent(this,MainActivity::class.java)
+        val i= Intent(this,ReportsMenuActivity::class.java)
 
         startActivity(i)
     }
@@ -81,7 +81,7 @@ class InvoiceListActivity : AppCompatActivity() {
             holder.position=position
             holder.dateText.text=invoiceList!![position].ftrdate.toString()
             holder.dsrNumberText.text=invoiceList!![position].dsrNumber.toString()
-            val handler=MyDBHandler(context = this.context!!,version = 1,name=null,factory = null)
+
             holder.cusNameText.text=invoiceList!![position].customer.name
             holder.totalText.text=invoiceList!![position].totAmount.toString()
             holder.shortDescrText.text=invoiceList!![position].shortDescr.toString()

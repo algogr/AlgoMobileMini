@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Build
 import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.TabLayout
 import android.support.v4.app.FragmentActivity
 import android.util.Log
@@ -33,9 +34,12 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
     var customer:Customer?=null
     var hasChanged:Boolean=false
 
-    init {
-        this.finDoc=FinDoc(ftrdate = nowToString() )
 
+
+    init {
+
+        this.finDoc=FinDoc(ftrdate = nowToString() )
+        Log.d("JIM",finDoc.ftrdate)
         basket.finDocLines=finDocLines
 
     }
@@ -51,16 +55,16 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val current = LocalDateTime.now()
 
-            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy.")
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             answer =  current.format(formatter)
-            Log.d("answer",answer)
+            Log.d("answer1",answer)
 
         } else {
             var date = Date();
 
-            val formatter = SimpleDateFormat("MMM dd yyyy")
+            val formatter = SimpleDateFormat("yyyy-MM-dd")
             answer = formatter.format(date)
-            Log.d("answer",answer)
+            Log.d("answer2",answer)
 
         }
         return answer
@@ -91,9 +95,9 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
         }
         hasChanged=true
-        basket.acceptButton2.isEnabled=true
+        //basket.acceptButton2.isEnabled=true
 
-        basket.printerButton.isEnabled=false
+        //basket.printerButton.isEnabled=false
 
         basket.notifyChanges()
 
@@ -103,8 +107,8 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
     override  fun onDelete(position: Int){
 
         hasChanged=true
-        basket.printerButton.isEnabled=false
-        basket.acceptButton2.isEnabled=true
+        //basket.printerButton.isEnabled=false
+        //basket.acceptButton2.isEnabled=true
         basket.notifyChanges()
     }
 
@@ -115,8 +119,8 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
 
         val ft:()->Unit={
-                onPrint(basket.context)
-                finDocLines.clear()
+
+                //finDocLines.clear()
                 val i = Intent(this.baseContext,if (mode==0) RouteActivity::class.java else InvoiceListActivity::class.java)
                 this.baseContext.startActivity(i)
 
@@ -142,27 +146,49 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
                 isUpdate=true
             }
 
-
+            var tmpCustomer:Customer?=null
+            var tmpSubsidiary:Subsidiary?=null
+            var tmpThird:Customer?=null
             if (finDoc.third!=null) {
+
+                tmpCustomer=finDoc.customer
+                tmpThird=finDoc.third
+                tmpSubsidiary=finDoc.subsidiary
                 finDoc.customer = finDoc.third!!
                 finDoc.subsidiary = null
             }
 
             val ftrid=handler.insertInvoice(finDoc,isUpdate)
             handler.insertLines(ftrid,finDocLines)
+            if(finDoc.copies>0) {
+                val builder1 = AlertDialog.Builder(basket.context)
 
-            val builder1=AlertDialog.Builder(basket.context)
-            builder1.setTitle("Εκτύπωση παραστατικού")
-            builder1.setMessage("Να εκτυπωθεί το παραστατικό;")
-            builder1.setPositiveButton("Ναι",{dialog,id->
-                onPrint(basket.context)
+                builder1.setTitle("Εκτύπωση παραστατικού")
+                builder1.setMessage("Να εκτυπωθεί το παραστατικό;")
+                builder1.setPositiveButton("Ναι", { dialog, id ->
+
+                    finDoc.third=tmpCustomer
+                    if (mode==0 && finDoc.dsrId==6)
+                    {
+                        finDoc.third=tmpThird
+                        finDoc.customer=tmpCustomer!!
+                        finDoc.subsidiary=tmpSubsidiary
+                    }
+                    //finDoc.subsidiary=tmpSubsidiary
+                    onPrint(this@InvoiceActivity)
+                    Handler().postDelayed(Runnable {
+                        ft()
+                    }, 10000)
+
+                })
+                builder1.setNegativeButton("Οχι", { dialog, id ->
+                    ft()
+                })
+                val dialog1 = builder1.create()
+                dialog1.show()
+            }
+            else
                 ft()
-            })
-            builder1.setNegativeButton("Οχι",{dialog,id->
-                 ft()
-            })
-            val dialog1=builder1.create()
-            dialog1.show()
 
 
 
@@ -197,12 +223,11 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         {
             builder.setTitle("Επιβεβαίωση διαγραφής")
             builder.setMessage("Το παραστατικό θα διαγραφεί!! Επιβεβαίωση!") // add the buttons
+
             builder.setPositiveButton("Διαγραφή", DialogInterface.OnClickListener { dialog, id ->
                 val handler = MyDBHandler(context = this.baseContext, version = 1, name = null, factory = null)
-                var query="delete from storetradelines where ftrid=" + finDoc.id.toString()
-                handler.insertUpdate(query)
-                query="delete from fintrade where id=" + finDoc.id.toString()
-                handler.insertUpdate(query)
+                handler.deleteLines(finDoc)
+                handler.deleteInvoice(finDoc)
                 val i = Intent(basket.context, InvoiceListActivity::class.java)
                 basket.context.startActivity(i)
 
@@ -223,11 +248,13 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
 
         val bt=BTPrinterBixolon(context)
 
-
         val handler = MyDBHandler(context = context, version = 1, name = null, factory = null)
-        val company=handler.getCompanyData()
-        bt.connect(company, finDoc, finDocLines, bt::invoice)
-
+        val company = handler.getCompanyData()
+        Log.d("JIM-FINDOC",finDoc.toString())
+        if (finDoc.dsrId==6)
+            bt.connect(finDoc.copies,company, finDoc, finDocLines,bt::bolthird)
+        else
+            bt.connect(finDoc.copies,company, finDoc, finDocLines,bt::invoice)
 
 
     }
@@ -241,6 +268,7 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
         val extras=intent.extras
         mode=extras.getInt("mode")
         finDoc.customer=extras?.getSerializable("customer") as Customer??: Customer()
+        Log.d("JIM-CUSTOMER",finDoc.customer.toString())
 
         finDoc.dsrId=extras?.getInt("dsrtype")?:0
         finDoc.isCash=extras?.getInt("iscash")?:-1
@@ -252,6 +280,7 @@ class InvoiceActivity : FragmentActivity(),Tab1Fragment.OnItemSelectedListener,
             finDoc.shortDescr = docSeries.shortDescr
             finDoc.typeDescr = docSeries.description
             finDoc.copies = docSeries.copies
+            finDoc.dsrNumber=docSeries.lastno+1
         }
 
 

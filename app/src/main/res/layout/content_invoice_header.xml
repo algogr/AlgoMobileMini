@@ -86,7 +86,13 @@
                 android:text="Δελτίο Αποστολής για λογ/μο τρίτων"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/ddeRadioButton" android:layout_weight="1"/>
+        <RadioButton
+                android:text="Συγκεντρωτικό Δελτίο Αποστολής"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/sdaRadioButton" android:layout_weight="1"/>
     </RadioGroup>
+
+
     <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

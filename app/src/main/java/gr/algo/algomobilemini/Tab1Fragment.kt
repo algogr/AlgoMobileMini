@@ -227,6 +227,7 @@ class Tab1Fragment : Fragment() {
                     args.putFloat("discount",MaterialList!![position].maxdiscount)
                     args.putFloat("secdiscount",0.00f)
 
+
                     itemFragment.arguments=args
                     //fragmentTransaction.replace(R.id.frameLayout1, itemFragment)
                     fragmentTransaction.replace(R.id.containerFrame1,itemFragment)

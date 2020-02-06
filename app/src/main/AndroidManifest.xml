@@ -22,6 +22,21 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity
+                android:name=".ReportsMenuActivity"
+                android:label="@string/title_activity_reports_menu"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".StockListActivity"
+                android:label="@string/title_activity_store_status"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+                android:name=".Preferences"
+                android:label="@string/title_activity_preferences"
+                android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
                 android:name=".CashMainReport"
                 android:label="@string/title_activity_cash_main_report"
                 android:theme="@style/AppTheme.NoActionBar">

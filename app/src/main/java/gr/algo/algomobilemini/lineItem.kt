@@ -4,6 +4,7 @@ package gr.algo.algomobilemini
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.text.SpannableStringBuilder
@@ -38,6 +39,7 @@ class lineItem : Fragment() {
     var lastPrice:Float?=0.00f
     var lastDiscount:Float?=0.00f
     var lastDate:String?=""
+    lateinit  var stockItem:Material
 
 
     var mode:Int?=0 //0-Insert     1-Edit
@@ -45,7 +47,7 @@ class lineItem : Fragment() {
 
     var acceptListener:OnAcceptListener?=null
     var deleteListener:OnDeleteListener?=null
-
+    var dsrid:Int=-1
 
     lateinit var basket:Tab2Fragment
 
@@ -70,12 +72,14 @@ class lineItem : Fragment() {
         val vatv=view.vatValueTextView
         vatStatus=arguments?.getInt("vatstatus")
 
-
+       val t=activity as InvoiceActivity
+       dsrid=t.finDoc.dsrId
 
 
         qt.setOnFocusChangeListener { v, hasFocus ->
 
             if(!hasFocus)
+
             {
 
                 nvl.setText(calculateNV(view))
@@ -136,64 +140,68 @@ class lineItem : Fragment() {
 
         view.acceptButton2.setOnClickListener {
 
-            v:View ->
-
-            calculateNV(view)
-            calculateVat(view)
-            val firstqty=firstQtyEdit.text.toString().toFloatOrNull()?:0.00f
-
-
-            val price=priceEdit.text.toString().toFloatOrNull()?:0.00f
-            Log.d("JIM-NREA",price.toString())
-
-            val discount=discountEdit.text.toString().toFloatOrNull()?:0.00f
-
-            val secDiscount=discount2Edit.text.toString().toFloatOrNull()?:0.00f
-
-            val netvalue=netValueTextView.text.toString().toFloatOrNull()?:0.00f
-
-            val vatvalue=vatValueTextView.text.toString().toFloatOrNull()?:0.00f
+            v: View ->
+            val q = view.firstQtyEdit.text.toString().toFloatOrNull() ?: 0.00f
+            val b = view.balanceTextView1.text.toString().toFloat()
+            val handler = MyDBHandler(context = this.context, version = 1, name = null, factory = null)
 
 
 
-            if (firstqty>0) {
-                val finDocLine = FinDocLine(iteCode = code!!, iteDescription = description!!,
-                        firstQty = firstqty, price = price,
-                        discount = discount, netValue = netvalue, vatValue = vatvalue, vtcID = vtcId!!, iteID = erpId!!,secDiscount = secDiscount,vatPercent = vatprc!!)
+
+            val preferences = handler.getPreferences()
+            val check = preferences.getInt("balancecheck")
+            ////TODO() READ ARRAY FROM DB
+            val minus= arrayListOf<Int>()
+            minus.add(1)
+            minus.add(3)
+            minus.add(6)
+            if (((b - q) < 0) && (check>0) && (dsrid in  minus)) {
 
                 val tab1fragment: Fragment = Tab1Fragment()
-                acceptListener?.onAccept(finDocLine,position)
 
 
+                val builder1 = AlertDialog.Builder(activity)
+                builder1.setTitle("Υπέρβαση υπολοίπου")
+                if (check == 1) {
 
-                val  fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction()
-                if (position==-1) {
 
-                    fragmentTransaction.replace(R.id.containerFrame1, tab1fragment)
-                    fragmentTransaction.commit()
+                    builder1.setMessage("Δεν υπάρχει διαθέσιμο υπόλοιπο.Να καταχωρηθεί;")
+                    builder1.setPositiveButton("Ναι",{dialog,id-> proceedAccept(view)})
+                    builder1.setNegativeButton("Οχι", { dialog, id ->
+
+                        
+                        val fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction()
+                        fragmentTransaction.replace(R.id.containerFrame1, tab1fragment)
+                        fragmentTransaction.commit()
+                    })
+
                 }
-                else
-                {
+                if (check == 2) {
+                    builder1.setMessage("Δεν υπάρχει διαθέσιμο υπόλοιπο")
+                    builder1.setPositiveButton("OK", { dialog, id ->
 
-
-
-
-                    fragmentTransaction.replace(R.id.containerFrame2,basket)
+                     val  fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction()
+                    fragmentTransaction.replace(R.id.containerFrame1,tab1fragment)
                     fragmentTransaction.commit()
 
-                    return@setOnClickListener
+                    })
+
+
+
+
                 }
-
-
+                val dialog1 = builder1.create()
+                dialog1.show()
 
 
 
             }
-            else
-            {
-                Snackbar.make(v, "Δεν καταχωρήθηκε ποσότητα ",
-                      Snackbar.LENGTH_LONG).setAction("Action", null).show()
+
+            else{
+                proceedAccept(view)
             }
+
+
 
 
 
@@ -210,6 +218,61 @@ class lineItem : Fragment() {
 
         return view
 
+
+
+    }
+    
+    
+    
+    fun proceedAccept(view:View)
+    {
+        calculateNV(view)
+        calculateVat(view)
+        val firstqty = firstQtyEdit.text.toString().toFloatOrNull() ?: 0.00f
+
+
+        val price = priceEdit.text.toString().toFloatOrNull() ?: 0.00f
+        Log.d("JIM-NREA", price.toString())
+
+        val discount = discountEdit.text.toString().toFloatOrNull() ?: 0.00f
+
+        val secDiscount = discount2Edit.text.toString().toFloatOrNull() ?: 0.00f
+
+        val netvalue = netValueTextView.text.toString().toFloatOrNull() ?: 0.00f
+
+        val vatvalue = vatValueTextView.text.toString().toFloatOrNull() ?: 0.00f
+
+
+
+        if (firstqty > 0) {
+            val finDocLine = FinDocLine(iteCode = code!!, iteDescription = description!!,
+                    firstQty = firstqty, price = price,
+                    discount = discount, netValue = netvalue, vatValue = vatvalue, vtcID = vtcId!!, iteID = erpId!!, secDiscount = secDiscount, vatPercent = vatprc!!)
+
+            val tab1fragment: Fragment = Tab1Fragment()
+            acceptListener?.onAccept(finDocLine, position)
+
+
+
+            val fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction()
+            if (position == -1) {
+
+                fragmentTransaction.replace(R.id.containerFrame1, tab1fragment)
+                fragmentTransaction.commit()
+            } else {
+
+
+                fragmentTransaction.replace(R.id.containerFrame2, basket)
+                fragmentTransaction.commit()
+
+                return
+            }
+
+
+        } else {
+            Snackbar.make(view, "Δεν καταχωρήθηκε ποσότητα ",
+                    Snackbar.LENGTH_LONG).setAction("Action", null).show()
+        }
 
 
     }
@@ -244,10 +307,6 @@ class lineItem : Fragment() {
         val price=p.text?.toString()?.toFloatOrNull()?:0.00f
         val discount=d.text?.toString()?.toFloatOrNull()?:0.00f
         val secDiscount=sd.text?.toString()?.toFloatOrNull()?:0.00f
-        //Log.d("JIM-qty",qty.toString())
-        //Log.d("JIM-price",price.toString())
-        //Log.d("JIM-disc",discount.toString())
-        //Log.d("JIM-disc2",secDiscount.toString())
 
         val rv:Float=qty*price-(qty*price*discount/100)-((qty*price-(qty*price*discount/100))*secDiscount/100)
 
@@ -314,8 +373,10 @@ class lineItem : Fragment() {
 
 
 
+
         val handler=MyDBHandler(context = this.context,version = 1,name=null,factory = null)
         vatprc=handler.getVatPercent(vtcId.toString(),vatStatus!!)
+        stockItem=handler.getItembyId(erpId!!)
         val t= activity as InvoiceActivity
         val tId=t.finDoc.customer.id
         val customerId:Int?
@@ -340,6 +401,7 @@ class lineItem : Fragment() {
 
 
         textCode?.setText(code)
+        balanceTextView1?.setText(stockItem.balance.toString())
         textDescr?.setText(description)
         vatPrcTextView.setText(vatprc.toString())
         priceEdit.text=SpannableStringBuilder(price.toString())
